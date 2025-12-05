@@ -2,6 +2,7 @@ import csv
 import json
 import boto3
 import time
+import os
 from typing import Dict, Any, Optional, Tuple
 
 lambda_client = boto3.client('lambda')
@@ -9,6 +10,38 @@ lambda_client = boto3.client('lambda')
 lambda_arn = "arn:aws:lambda:ap-south-1:703671918077:function:productanalyzer"
 
 file_name = "Rag Pipeline Analysis Data - Sheet1.csv"
+progress_file = "product_processing_progress.json"
+
+def save_progress(unique_product_ids: Dict, processed_count: int):
+    """Save current progress to a JSON file."""
+    progress_data = {
+        'processed_count': processed_count,
+        'unique_product_ids': {str(k): v for k, v in unique_product_ids.items()},
+        'timestamp': time.time()
+    }
+    with open(progress_file, 'w') as f:
+        json.dump(progress_data, f, indent=2)
+    print(f"Progress saved: {processed_count} products processed")
+
+def load_progress():
+    """Load progress from JSON file if it exists."""
+    if os.path.exists(progress_file):
+        try:
+            with open(progress_file, 'r') as f:
+                progress_data = json.load(f)
+            
+            # Convert string keys back to tuples
+            unique_product_ids = {}
+            for key_str, value in progress_data['unique_product_ids'].items():
+                key = eval(key_str)  # Convert string back to tuple
+                unique_product_ids[key] = value
+            
+            print(f"Resuming from previous progress: {progress_data['processed_count']} products already processed")
+            return unique_product_ids, progress_data['processed_count']
+        except Exception as e:
+            print(f"Error loading progress file: {e}")
+            return {}, 0
+    return {}, 0
 
 def read_csv(file_path):
     with open(file_path, mode='r', newline='', encoding='utf-8') as file:
@@ -66,7 +99,8 @@ def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], 
                     time.sleep(delay)
                     continue
                 else:
-                    print(f"Max retries reached for {key}")
+                    print(f"Max retries reached for {key}. Pausing for 1 minute...")
+                    time.sleep(60)  # 1 minute pause on final failure
                     return key, None
             
             product_id = json.loads(response_payload.get('body', '{}')).get('product', {}).get('_id')
@@ -81,6 +115,8 @@ def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], 
                     time.sleep(delay)
                     continue
                 else:
+                    print(f"Max retries reached for {key}. Pausing for 1 minute...")
+                    time.sleep(60)  # 1 minute pause on final failure
                     return key, None
                     
         except Exception as e:
@@ -89,7 +125,8 @@ def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], 
                 print(f"Retrying in {delay} seconds...")
                 time.sleep(delay)
             else:
-                print(f"Max retries reached for {key}")
+                print(f"Max retries reached for {key}. Pausing for 1 minute...")
+                time.sleep(60)  # 1 minute pause on final failure
                 return key, None
     
     return key, None
@@ -104,21 +141,35 @@ def write_csv_with_product_ids(file_path, data, product_ids):
             row['product_id'] = product_ids.get(i)
             writer.writerow(row)
 
+# Main execution
 data = read_csv(file_name)
 
 # Get unique products and mapping to row indices
 unique_products, product_to_indices = get_unique_products(data)
 print(f"Found {len(unique_products)} unique products out of {len(data)} total rows")
 
-# Process unique products serially with retries
-unique_product_ids = {}
-for i, (key, product_data) in enumerate(unique_products.items()):
-    print(f"Processing {i+1}/{len(unique_products)}: {key}")
+# Load previous progress
+unique_product_ids, start_index = load_progress()
+
+# Process unique products serially with retries, starting from where we left off
+unique_products_list = list(unique_products.items())
+for i in range(start_index, len(unique_products_list)):
+    key, product_data = unique_products_list[i]
+    
+    # Skip if already processed
+    if key in unique_product_ids:
+        print(f"Skipping already processed product {i+1}/{len(unique_products_list)}: {key}")
+        continue
+    
+    print(f"Processing {i+1}/{len(unique_products_list)}: {key}")
     key, product_id = process_unique_product_with_retry(key, product_data)
     unique_product_ids[key] = product_id
     
+    # Save progress after each successful processing
+    save_progress(unique_product_ids, i + 1)
+    
     # Add a small delay between requests to avoid overwhelming the service
-    if i < len(unique_products) - 1:
+    if i < len(unique_products_list) - 1:
         time.sleep(1)
 
 # Map product IDs back to all rows
@@ -130,6 +181,11 @@ for key, product_id in unique_product_ids.items():
 # Write updated CSV with product IDs
 write_csv_with_product_ids(file_name, data, product_ids)
 print("Processing complete. Updated CSV saved.")
+
+# Clean up progress file on successful completion
+if os.path.exists(progress_file):
+    os.remove(progress_file)
+    print("Progress file cleaned up.")
 
 # Print summary of failed products
 failed_products = [key for key, product_id in unique_product_ids.items() if product_id is None]
