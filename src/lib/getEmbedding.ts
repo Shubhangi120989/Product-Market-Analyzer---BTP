@@ -4,7 +4,7 @@ const client = new BedrockRuntimeClient({
   region: "us-east-1",
 });
 
-export const getEmbedding = async (text: string, retries = 3): Promise<number[]> => {
+export const getEmbedding = async (text: string, retries = 16): Promise<number[]> => {
   // Validate input
   if (!text || text.trim().length === 0) {
     console.warn('Empty text provided to getEmbedding, returning zero vector');

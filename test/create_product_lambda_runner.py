@@ -15,17 +15,34 @@ def read_csv(file_path):
         data = [row for row in reader]
     return data
 
-def process_row(index, row):
-    try:
+def get_unique_products(data):
+    unique_products = {}
+    product_to_indices = {}
+    
+    for index, row in enumerate(data):
         product = row.get('product')
         product_category = row.get('product category')
+        key = (product, product_category)
         
+        if key not in unique_products:
+            unique_products[key] = {
+                'product': product,
+                'product_category': product_category
+            }
+            product_to_indices[key] = []
+        
+        product_to_indices[key].append(index)
+    
+    return unique_products, product_to_indices
+
+def process_unique_product(key, product_data):
+    try:
         lambda_payload = { 
-            "product_name": product, 
+            "product_name": product_data['product'], 
             "product_description": "N/A", 
-            "product_category": product_category 
+            "product_category": product_data['product_category'] 
         }
-        print(f"Processing row {index}: {lambda_payload}")
+        print(f"Processing unique product: {lambda_payload}")
 
         response = lambda_client.invoke(
             FunctionName=lambda_arn,
@@ -34,14 +51,14 @@ def process_row(index, row):
         )
 
         response_payload = json.loads(response['Payload'].read().decode('utf-8'))
-        print(f"Response for row {index}: {response_payload}")
+        print(f"Response for {key}: {response_payload}")
         product_id = json.loads(response_payload.get('body', {})).get('product', {}).get('_id')
         
-        print(f"Row {index}: Product ID: {product_id}")
-        return index, product_id
+        print(f"Unique product {key}: Product ID: {product_id}")
+        return key, product_id
     except Exception as e:
-        print(f"Error processing row {index}: {e}")
-        return index, None
+        print(f"Error processing unique product {key}: {e}")
+        return key, None
 
 def write_csv_with_product_ids(file_path, data, product_ids):
     with open(file_path.replace('.csv', '_with_product_ids.csv'), mode='w', newline='', encoding='utf-8') as file:
@@ -55,14 +72,24 @@ def write_csv_with_product_ids(file_path, data, product_ids):
 
 data = read_csv(file_name)
 
-product_ids = {}
+# Get unique products and mapping to row indices
+unique_products, product_to_indices = get_unique_products(data)
+print(f"Found {len(unique_products)} unique products out of {len(data)} total rows")
 
-# Process rows in parallel
+# Process unique products in parallel
+unique_product_ids = {}
 with ThreadPoolExecutor(max_workers=100) as executor:
-    futures = {executor.submit(process_row, index, row): index for index, row in enumerate(data)}
+    futures = {executor.submit(process_unique_product, key, product_data): key 
+               for key, product_data in unique_products.items()}
     
     for future in as_completed(futures):
-        index, product_id = future.result()
+        key, product_id = future.result()
+        unique_product_ids[key] = product_id
+
+# Map product IDs back to all rows
+product_ids = {}
+for key, product_id in unique_product_ids.items():
+    for index in product_to_indices[key]:
         product_ids[index] = product_id
 
 # Write updated CSV with product IDs
