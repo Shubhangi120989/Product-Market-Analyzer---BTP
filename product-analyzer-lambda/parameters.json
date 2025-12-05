@@ -1,0 +1,12 @@
+{
+  "Parameters": {
+    "RedditClientId": "your-reddit-client-id",
+    "RedditClientSecret": "your-reddit-client-secret", 
+    "GeminiApiKey": "your-gemini-api-key",
+    "QdrantUrl": "your-qdrant-url",
+    "QdrantApiKey": "your-qdrant-api-key",
+    "QdrantCollectionName": "product_posts",
+    "MongoDbUri": "your-mongodb-uri",
+    "DbName": "product_analyzer"
+  }
+}

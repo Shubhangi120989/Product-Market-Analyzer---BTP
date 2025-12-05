@@ -1,0 +1,1 @@
+export const EMBEDDING_SIZE = 1536;

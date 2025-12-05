@@ -1,4 +1,5 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { EMBEDDING_SIZE } from "../../constants";
 // if (!process.env.QDRANT_URL || !process.env.QDRANT_API_KEY) throw new Error("QDRANT_URL or QDRANT_API_KEY is not defined");
 
 
@@ -20,7 +21,7 @@ export const ensureCollectionExists = async () => {
             console.log(`Creating collection: ${QDRANT_COLLECTION_NAME}`);
             await client.createCollection(QDRANT_COLLECTION_NAME, {
                 vectors: {
-                    size: 768, // Ensure this matches your embedding model output size
+                    size: EMBEDDING_SIZE, // Ensure this matches your embedding model output size
                     distance: "Cosine"
                 }
             });

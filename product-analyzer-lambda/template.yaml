@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  product-analyzer-lambda
+
+  Lambda function for Product Market Analyzer - processes product data and fetches Reddit posts
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 900  # 15 minutes for processing Reddit posts and embedding generation
+    MemorySize: 1024
+
+Resources:
+  ProductAnalyzerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          REDDIT_CLIENT_ID: !Ref RedditClientId
+          REDDIT_CLIENT_SECRET: !Ref RedditClientSecret
+          GEMINI_API_KEY: !Ref GeminiApiKey
+          QDRANT_URL: !Ref QdrantUrl
+          QDRANT_API_KEY: !Ref QdrantApiKey
+          QDRANT_COLLECTION_NAME: !Ref QdrantCollectionName
+          MONGODB_URI: !Ref MongoDbUri
+          DB_NAME: !Ref DbName
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.titan-embed-text-v1"
+      Events:
+        ProductAnalyzer:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /analyze-product
+            Method: post
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - app.ts
+
+Parameters:
+  RedditClientId:
+    Type: String
+    Description: Reddit API Client ID
+    NoEcho: true
+  RedditClientSecret:
+    Type: String
+    Description: Reddit API Client Secret
+    NoEcho: true
+  GeminiApiKey:
+    Type: String
+    Description: Google Gemini API Key
+    NoEcho: true
+  QdrantUrl:
+    Type: String
+    Description: Qdrant Vector Database URL
+    Default: "http://localhost:6333"
+  QdrantApiKey:
+    Type: String
+    Description: Qdrant API Key (if required)
+    NoEcho: true
+    Default: ""
+  QdrantCollectionName:
+    Type: String
+    Description: Qdrant Collection Name
+    Default: "product_posts"
+  MongoDbUri:
+    Type: String
+    Description: MongoDB Connection URI
+    NoEcho: true
+  DbName:
+    Type: String
+    Description: Database Name
+    Default: "product_analyzer"
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  ProductAnalyzerApi:
+    Description: "API Gateway endpoint URL for Prod stage for Product Analyzer function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze-product/"
+  ProductAnalyzerFunction:
+    Description: "Product Analyzer Lambda Function ARN"
+    Value: !GetAtt ProductAnalyzerFunction.Arn
+  ProductAnalyzerFunctionIamRole:
+    Description: "Implicit IAM Role created for Product Analyzer function"
+    Value: !GetAtt ProductAnalyzerFunctionRole.Arn

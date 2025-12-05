@@ -1,0 +1,9 @@
+{
+  "body": "{\"product_name\":\"iPhone 15\",\"product_description\":\"Latest Apple smartphone with advanced features\",\"product_category\":\"smartphone\"}",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "httpMethod": "POST",
+  "path": "/analyze-product",
+  "resource": "/analyze-product"
+}

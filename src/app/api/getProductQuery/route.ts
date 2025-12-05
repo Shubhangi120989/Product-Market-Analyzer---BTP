@@ -193,8 +193,8 @@ async function retrieveTopPostsForEmbedding(embedding: Vector, productFilter: st
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // const user = await getUser();
+    // if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
     const { query, productId } = body ?? {};
