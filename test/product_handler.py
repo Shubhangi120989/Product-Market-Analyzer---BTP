@@ -2,6 +2,7 @@ import requests
 from pprint import pprint
 from ragas import SingleTurnSample
 from ragas.metrics import IDBasedContextPrecision
+from ragas.metrics import Faithfulness
 
 
 cookies = {
@@ -55,19 +56,27 @@ without_pipeline = response.get('without_pipeline')
 without_pipeline_ai_response = without_pipeline.get('ai_response')
 context_without_pipeline = without_pipeline.get('context_without_pipeline')
 
-
-
-# create ragas matrix
-ragas_matrix = {
-    'with_pipeline': {
-        'ai_response': with_pipeline_ai_response,
-        'context': context_with_pipeline,
-    },
-    'without_pipeline': {
-        'ai_response': without_pipeline_ai_response,
-        'context': context_without_pipeline,
-    }
-}
-pprint(ragas_matrix)
-
 # 4 matrix me yeh sab chize input dalna for ex. 
+# Initialize the faithfulness metric
+faithfulness = Faithfulness()
+
+# Create SingleTurnSample for with_pipeline
+with_pipeline_sample = SingleTurnSample(
+    user_input=question,
+    response=with_pipeline_ai_response,
+    retrieved_contexts=context_with_pipeline
+)
+
+# Create SingleTurnSample for without_pipeline
+without_pipeline_sample = SingleTurnSample(
+    user_input=question,
+    response=without_pipeline_ai_response,
+    retrieved_contexts=context_without_pipeline
+)
+
+# Evaluate faithfulness for both samples
+with_pipeline_faithfulness = faithfulness.single_turn_score(with_pipeline_sample)
+without_pipeline_faithfulness = faithfulness.single_turn_score(without_pipeline_sample)
+
+print(f"Faithfulness with pipeline: {with_pipeline_faithfulness}")
+print(f"Faithfulness without pipeline: {without_pipeline_faithfulness}")

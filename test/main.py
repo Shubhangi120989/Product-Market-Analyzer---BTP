@@ -22,7 +22,6 @@ for index, row in enumerate(data):
     print(f"Ground Truth: {ground_truth}")
 
     # use 2 apis
-    # 1. create product api
     # 2. ask the question from api.
     # 3. save all 4 responses 
     # 4. 4 types of ragas matrix

@@ -1,0 +1,101 @@
+product,product category,question,ground_truth,product_id
+Samsung Galaxy S24 Ultra,Electronics,What performance issues do users commonly report with the S24 Ultra?,Users commonly report minor heating during long gaming or camera use but no major throttling issues.,69332bdf5e415a34a70d0855
+Samsung Galaxy S24 Ultra,Electronics,How is the battery life compared to previous Samsung flagships?,"Battery life is generally better than previous Samsung models, lasting a full day with mixed use.",69332bdf5e415a34a70d0855
+Apple iPhone 15 Pro,Electronics,What thermal problems do users experience on the iPhone 15 Pro?,"Some users experience heating during intensive tasks, especially gaming and 4K recording.",69332bf05e415a34a70d0858
+Apple iPhone 15 Pro,Electronics,How durable is the titanium body in real-world use?,The titanium frame is durable but prone to cosmetic scratches.,69332bf05e415a34a70d0858
+Sony WH-1000XM5,Electronics,What complaints do users have about ANC performance?,A few users feel ANC struggles with sharp high-frequency noises.,69332c035e415a34a70d085b
+Sony WH-1000XM5,Electronics,Are the ear cushions comfortable for long usage?,Most users find the cushions comfortable for 3–4 hours of continuous use.,69332c035e415a34a70d085b
+Bose SoundLink Revolve,Electronics,Does the speaker perform well outdoors?,It performs well outdoors but loses bass in open areas.,69332c155e415a34a70d085e
+Bose SoundLink Revolve,Electronics,What connectivity issues are commonly reported?,Some users report Bluetooth reconnection issues.,69332c155e415a34a70d085e
+Amazon Echo Dot,Electronics,How accurate is voice detection in noisy environments?,Voice detection works well but struggles in very noisy rooms.,69332c295e415a34a70d0861
+Amazon Echo Dot,Electronics,Do users face WiFi disconnection issues?,"Occasional WiFi drops are reported, mostly with 2.4 GHz networks.",69332c295e415a34a70d0861
+Sleepwell Memory Foam Mattress,Home & Living,Do users find the mattress too soft or too firm?,Most users describe it as medium-firm; a minority find it too soft.,69332c395e415a34a70d0864
+Sleepwell Memory Foam Mattress,Home & Living,Does it retain body heat over long sleep durations?,Memory foam retains some heat but is manageable for most sleepers.,69332c395e415a34a70d0864
+IKEA Linnmon Study Table,Home & Living,Is the table stable and durable?,It is stable for normal tasks but may wobble under heavy weight.,69332c475e415a34a70d0867
+IKEA Linnmon Study Table,Home & Living,Are there assembly difficulties users frequently face?,Assembly is simple but requires careful alignment of legs,69332c475e415a34a70d0867
+Wakefit Office Chair,Home & Living,How good is the lumbar support?,Lumbar support is adequate for long hours.,69332c585e415a34a70d086a
+Wakefit Office Chair,Home & Living,Do users report any noise from the wheels?,Some users experience mild noise from the wheels over time.,69332c585e415a34a70d086a
+Philips LED Desk Lamp,Home & Living,Is the brightness sufficient for reading at night?,Brightness is sufficient for reading and work.,69332c685e415a34a70d086d
+Philips LED Desk Lamp,Home & Living,Do users experience flickering issues?,Rare flickering issues appear after prolonged use.,69332c685e415a34a70d086d
+Godrej Safe Locker,Home & Living,How secure is the locking mechanism?,Locking mechanism is strong and secure.,69332c795e415a34a70d0870
+Godrej Safe Locker,Home & Living,Are there concerns about battery drainage?,Keypad models may drain batteries faster if used frequently.,69332c795e415a34a70d0870
+Instant Pot Duo,Kitchen Appliances & Tools,Are users satisfied with the pressure-cooking performance?,Users are satisfied with pressure cooking performance and consistency.,69332c885e415a34a70d0873
+Instant Pot Duo,Kitchen Appliances & Tools,Do they face sealing ring or steam release issues?,Steam release and sealing ring issues occur occasionally.,69332c885e415a34a70d0873
+Philips Air Fryer,Kitchen Appliances & Tools,How reliable is temperature control?,Temperature control is reliable and accurate,69332c975e415a34a70d0876
+Philips Air Fryer,Kitchen Appliances & Tools,What cleaning difficulties are commonly mentioned?,Cleaning the basket and mesh can be challenging.,69332c975e415a34a70d0876
+Milton Thermosteel Flask,Kitchen Appliances & Tools,Does it retain heat for long durations?,It retains heat for 18–24 hours.,69332ca85e415a34a70d0879
+Milton Thermosteel Flask,Kitchen Appliances & Tools,Do users face leakage or smell issues?,Leakage issues are rare but occur if the lid is not tightened properly.,69332ca85e415a34a70d0879
+Wonderchef Non-stick Pan,Kitchen Appliances & Tools,How long does the coating last?,Coating lasts several months with proper care.,69332cb35e415a34a70d087c
+Wonderchef Non-stick Pan,Kitchen Appliances & Tools,Do users experience uneven heating?,Uneven heating may occur on low-quality stovetops.,69332cb35e415a34a70d087c
+Tupperware Storage Containers,Kitchen Appliances & Tools,Are the lids durable over long-term use?,Lids are durable for years of daily use.,69332e425e415a34a70d088b
+Tupperware Storage Containers,Kitchen Appliances & Tools,Do the containers retain odor?,Strong-smelling foods may leave odor.,69332e425e415a34a70d088b
+PlayStation 5,Gaming & Entertainment,What heating issues do gamers report?,Some users experience mild heating during heavy gaming.,69332e535e415a34a70d088e
+PlayStation 5,Gaming & Entertainment,Are download speeds consistent for most users?,Download speeds depend heavily on network quality.,69332e535e415a34a70d088e
+Nintendo Switch OLED,Gaming & Entertainment,Does the OLED screen face burn-in issues?,Burn-in is possible but extremely rare in normal use.,69332e675e415a34a70d0891
+Nintendo Switch OLED,Gaming & Entertainment,Are there frequent Joy-Con drift complaints?,Joy-Con drift still occurs in some units.,69332e675e415a34a70d0891
+Meta Quest 3,Gaming & Entertainment,Is the mixed reality tracking accurate?,Mixed reality tracking is accurate for indoor spaces.,69332e7c5e415a34a70d0894
+Meta Quest 3,Gaming & Entertainment,Do users complain about headset weight?,Some users find the headset slightly heavy after long sessions.,69332e7c5e415a34a70d0894
+Logitech G29 Racing Wheel,Gaming & Entertainment,How realistic is the force feedback?,Force feedback feels realistic for most racing games.,69332e8e5e415a34a70d0897
+Logitech G29 Racing Wheel,Gaming & Entertainment,Do users face calibration issues?,Calibration issues occur occasionally on PC.,69332e8e5e415a34a70d0897
+BenQ Gaming Monitor,Gaming & Entertainment,How good is the color accuracy?,Color accuracy is strong out of the box.,69332e9e5e415a34a70d089a
+BenQ Gaming Monitor,Gaming & Entertainment,Does the monitor suffer from backlight bleeding?,Slight backlight bleed can appear on dark scenes.,69332e9e5e415a34a70d089a
+Levi’s 511 Slim Fit Jeans,Fashion & Clothing,Do users find durability issues after washing?,Fabric remains durable but may fade after repeated washes.,69332eb05e415a34a70d089d
+Levi’s 511 Slim Fit Jeans,Fashion & Clothing,Is the fit consistent across batches?,Fit is consistent for most users.,69332eb05e415a34a70d089d
+Adidas Ultraboost Running Shoes,Fashion & Clothing,Do users experience heel slippage?,Heel slippage is minimal for correct sizing.,69332ec05e415a34a70d08a0
+Adidas Ultraboost Running Shoes,Fashion & Clothing,Are the shoes comfortable for long runs?,They are comfortable for long runs due to soft cushioning.,69332ec05e415a34a70d08a0
+Puma Hoodie,Fashion & Clothing,Does the fabric fade after multiple washes?,Fabric may fade slightly over many washes.,69332ed25e415a34a70d08a3
+Puma Hoodie,Fashion & Clothing,How warm is it in winter conditions?,It provides moderate warmth in winter.,69332ed25e415a34a70d08a3
+Fabindia Cotton Kurta,Fashion & Clothing,Is the sizing accurate?,Sizing is generally accurate.,69332ee35e415a34a70d08a6
+Fabindia Cotton Kurta,Fashion & Clothing,Does the color bleed during washing?,Some colors may bleed in the first wash.,69332ee35e415a34a70d08a6
+Titan Wristwatch,Fashion & Clothing,How accurate is the timekeeping?,Timekeeping is precise with minimal drift.,69332ef05e415a34a70d08a9
+Titan Wristwatch,Fashion & Clothing,Are straps long-lasting?,Straps last long with regular maintenance.,69332ef05e415a34a70d08a9
+Dyson Airwrap,Beauty & Personal Care,Are users satisfied with the curling performance?,Curling performance is effective even without high heat.,69332f005e415a34a70d08ac
+Dyson Airwrap,Beauty & Personal Care,Does it overheat during extended use?,Overheating is rare but can occur with prolonged use.,69332f005e415a34a70d08ac
+Loreal Revitalift Serum,Beauty & Personal Care,Do users see visible anti-aging results?,Users see mild improvements in skin texture.,69332f115e415a34a70d08af
+Loreal Revitalift Serum,Beauty & Personal Care,Are there issues with skin irritation?,Some users experience irritation if used excessively.,69332f115e415a34a70d08af
+Gillette Mach3 Razor,Beauty & Personal Care,How long does each blade last?,Each blade lasts multiple shaves.,69332f1c5e415a34a70d08b2
+Gillette Mach3 Razor,Beauty & Personal Care,Do users face skin cuts or razor burns?,Razor burns occur if used without lubrication.,69332f1c5e415a34a70d08b2
+Philips Hair Straightener,Beauty & Personal Care,How well does it handle frizz?,Works well for frizz control on most hair types.,693330705e415a34a70d08bf
+Philips Hair Straightener,Beauty & Personal Care,Does the ceramic coating wear off over time?,Ceramic coating may wear off after years of use.,693330705e415a34a70d08bf
+Neutrogena Sunscreen SPF 50,Beauty & Personal Care,Is it non-greasy as advertised?,It is lightweight and non-greasy for most users.,693330815e415a34a70d08c2
+Neutrogena Sunscreen SPF 50,Beauty & Personal Care,Do users report white cast issues?,A slight white cast appears on darker skin tones.,693330815e415a34a70d08c2
+Pampers Baby Diapers,Baby & Kids Products,Do users face leakage problems?,Some leakage occurs during overnight use.,693330935e415a34a70d08c5
+Pampers Baby Diapers,Baby & Kids Products,Are they gentle on sensitive skin?,They are gentle and suitable for sensitive skin.,693330935e415a34a70d08c5
+Chicco Baby Stroller,Baby & Kids Products,Is it easy to fold and transport?,Folding is easy and convenient.,693330a55e415a34a70d08c8
+Chicco Baby Stroller,Baby & Kids Products,Are the wheels durable?,Wheels are durable for long-term outdoor use.,693330a55e415a34a70d08c8
+LEGO Classic Blocks,Baby & Kids Products,Do kids find variety in the pieces?,Good variety of pieces for creativity.,693330b65e415a34a70d08cb
+LEGO Classic Blocks,Baby & Kids Products,Are there complaints about sharp edges?,Blocks have smooth edges and are safe.,693330b65e415a34a70d08cb
+Hot Wheels Car Pack,Baby & Kids Products,Are the designs durable?,Designs are vibrant and durable.,693330c95e415a34a70d08ce
+Hot Wheels Car Pack,Baby & Kids Products,Do wheels break easily?,Wheels may loosen after rough use.,693330c95e415a34a70d08ce
+Fisher-Price Activity Gym,Baby & Kids Products,Are the toys engaging enough?,Toys are engaging for infants.,693330db5e415a34a70d08d1
+Fisher-Price Activity Gym,Baby & Kids Products,Is the mat washable?,The mat is washable and easy to clean.,693330db5e415a34a70d08d1
+Bosch Cordless Drill,Tools & Hardware,How long does the battery last?,Battery lasts long for home use.,693330ee5e415a34a70d08d4
+Bosch Cordless Drill,Tools & Hardware,Do users face chuck tightening problems?,Chuck loosening is uncommon but possible.,693330ee5e415a34a70d08d4
+Black+Decker Screwdriver Set,Tools & Hardware,Is the build quality durable?,Build quality is reliable.,693330fe5e415a34a70d08d7
+Black+Decker Screwdriver Set,Tools & Hardware,Are the bits prone to rusting?,Bits may show rust if stored improperly.,693330fe5e415a34a70d08d7
+Stanley Tape Measure,Tools & Hardware,Is the tape sturdy?,Tape is sturdy and long-lasting.,6933310e5e415a34a70d08da
+Stanley Tape Measure,Tools & Hardware,Do users encounter retracting issues?,Retraction issues may appear after heavy use.,6933310e5e415a34a70d08da
+Makita Angle Grinder,Tools & Hardware,Does it vibrate too much during use?,Vibration is noticeable but manageable.,6933311f5e415a34a70d08dd
+Makita Angle Grinder,Tools & Hardware,What overheating problems are common?,Overheating occurs during extended heavy tasks.,6933311f5e415a34a70d08dd
+3M Safety Goggles,Tools & Hardware,Do they fog up easily?,Goggles fog in humid conditions.,6933312e5e415a34a70d08e0
+3M Safety Goggles,Tools & Hardware,Are users comfortable wearing them for long durations?,Comfortable for extended wearing.,6933312e5e415a34a70d08e0
+Michelin Car Tyre,Automotive & Travel Gear,How good is the road grip in rainy conditions?,Grip is strong even on wet roads.,6933313e5e415a34a70d08e3
+Michelin Car Tyre,Automotive & Travel Gear,Do users complain about premature wear?,Premature wear happens only with rough usage.,6933313e5e415a34a70d08e3
+Amaron Car Battery,Automotive & Travel Gear,How long does the battery last?,Lasts 3–4 years on average.,693331515e415a34a70d08e6
+Amaron Car Battery,Automotive & Travel Gear,Are there frequent charging issues?,Users rarely face charging issues.,693331515e415a34a70d08e6
+Steelbird Full-face Helmet,Automotive & Travel Gear,Is it comfortable for long rides?,Comfortable padding for long rides.,693332db5e415a34a70d08f5
+Steelbird Full-face Helmet,Automotive & Travel Gear,Do visors scratch easily?,Visors can scratch with frequent use.,693332db5e415a34a70d08f5
+Wildcraft Backpack,Automotive & Travel Gear,Is it suitable for heavy loads?,Carries heavy loads comfortably.,693332ec5e415a34a70d08f8
+Wildcraft Backpack,Automotive & Travel Gear,Does the chain get stuck?,Zippers may stick after long-term use.,693332ec5e415a34a70d08f8
+Skybags Suitcase,Automotive & Travel Gear,How durable are the wheels?,Wheels are smooth and durable.,693332fb5e415a34a70d08fb
+Skybags Suitcase,Automotive & Travel Gear,Does the surface scratch easily?,Surface scratches develop over time.,693332fb5e415a34a70d08fb
+Pedigree Dog Food,Pet Products,Do dogs enjoy the flavor?,Most dogs enjoy the taste.,6933330b5e415a34a70d08fe
+Pedigree Dog Food,Pet Products,Any digestion issues reported?,Minor digestion issues occur in sensitive dogs.,6933330b5e415a34a70d08fe
+Whiskas Cat Food,Pet Products,Is the nutrition balanced?,Nutritionally balanced for adult cats.,6933331d5e415a34a70d0901
+Whiskas Cat Food,Pet Products,Do cats reject certain flavors?,Some cats dislike specific flavors.,6933331d5e415a34a70d0901
+PetSafe Automatic Feeder,Pet Products,Is the feeder timing accurate?,Timing mechanism is accurate.,6933332f5e415a34a70d0904
+PetSafe Automatic Feeder,Pet Products,Do users face jamming issues?,Jamming occurs if large kibble is used.,6933332f5e415a34a70d0904
+Organic Potting Soil Mix,Gardening & Outdoors,Does it help plant growth effectively?,Supports healthy plant growth.,6933333f5e415a34a70d0907
+Organic Potting Soil Mix,Gardening & Outdoors,Are there complaints about insects?,May contain small insects due to organic material.,6933333f5e415a34a70d0907
+Plastic Planter Pots,Gardening & Outdoors,Are they durable in sunlight?,Durable for outdoor sunlight.,6933334f5e415a34a70d090a
+Plastic Planter Pots,Gardening & Outdoors,Do they crack easily?,Cracking occurs if exposed to extreme heat.,6933334f5e415a34a70d090a
