@@ -69,7 +69,7 @@ def get_unique_products(data):
     
     return unique_products, product_to_indices
 
-def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], max_retries: int = 3, delay: float = 2.0) -> Tuple[Tuple, Optional[str]]:
+def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], max_retries: int = 10, delay: float = 60.0) -> Tuple[Tuple, Optional[str]]:
     """Process a unique product with retry logic for failures."""
     
     for attempt in range(max_retries):
