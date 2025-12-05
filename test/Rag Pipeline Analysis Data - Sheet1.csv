@@ -1,101 +1,101 @@
-product,question,answer,contexts,ground_truth
-Samsung Galaxy S24 Ultra,What performance issues do users commonly report with the S24 Ultra?,,,Users commonly report minor heating during long gaming or camera use but no major throttling issues.
-Samsung Galaxy S24 Ultra,How is the battery life compared to previous Samsung flagships?,,,"Battery life is generally better than previous Samsung models, lasting a full day with mixed use."
-Apple iPhone 15 Pro,What thermal problems do users experience on the iPhone 15 Pro?,,,"Some users experience heating during intensive tasks, especially gaming and 4K recording."
-Apple iPhone 15 Pro,How durable is the titanium body in real-world use?,,,The titanium frame is durable but prone to cosmetic scratches.
-Sony WH-1000XM5,What complaints do users have about ANC performance?,,,A few users feel ANC struggles with sharp high-frequency noises.
-Sony WH-1000XM5,Are the ear cushions comfortable for long usage?,,,Most users find the cushions comfortable for 3–4 hours of continuous use.
-Bose SoundLink Revolve,Does the speaker perform well outdoors?,,,It performs well outdoors but loses bass in open areas.
-Bose SoundLink Revolve,What connectivity issues are commonly reported?,,,Some users report Bluetooth reconnection issues.
-Amazon Echo Dot,How accurate is voice detection in noisy environments?,,,Voice detection works well but struggles in very noisy rooms.
-Amazon Echo Dot,Do users face WiFi disconnection issues?,,,"Occasional WiFi drops are reported, mostly with 2.4 GHz networks."
-Sleepwell Memory Foam Mattress,Do users find the mattress too soft or too firm?,,,Most users describe it as medium-firm; a minority find it too soft.
-Sleepwell Memory Foam Mattress,Does it retain body heat over long sleep durations?,,,Memory foam retains some heat but is manageable for most sleepers.
-IKEA Linnmon Study Table,Is the table stable and durable?,,,It is stable for normal tasks but may wobble under heavy weight.
-IKEA Linnmon Study Table,Are there assembly difficulties users frequently face?,,,Assembly is simple but requires careful alignment of legs
-Wakefit Office Chair,How good is the lumbar support?,,,Lumbar support is adequate for long hours.
-Wakefit Office Chair,Do users report any noise from the wheels?,,,Some users experience mild noise from the wheels over time.
-Philips LED Desk Lamp,Is the brightness sufficient for reading at night?,,,Brightness is sufficient for reading and work.
-Philips LED Desk Lamp,Do users experience flickering issues?,,,Rare flickering issues appear after prolonged use.
-Godrej Safe Locker,How secure is the locking mechanism?,,,Locking mechanism is strong and secure.
-Godrej Safe Locker,Are there concerns about battery drainage?,,,Keypad models may drain batteries faster if used frequently.
-Instant Pot Duo,Are users satisfied with the pressure-cooking performance?,,,Users are satisfied with pressure cooking performance and consistency.
-Instant Pot Duo,Do they face sealing ring or steam release issues?,,,Steam release and sealing ring issues occur occasionally.
-Philips Air Fryer,How reliable is temperature control?,,,Temperature control is reliable and accurate
-Philips Air Fryer,What cleaning difficulties are commonly mentioned?,,,Cleaning the basket and mesh can be challenging.
-Milton Thermosteel Flask,Does it retain heat for long durations?,,,It retains heat for 18–24 hours.
-Milton Thermosteel Flask,Do users face leakage or smell issues?,,,Leakage issues are rare but occur if the lid is not tightened properly.
-Wonderchef Non-stick Pan,How long does the coating last?,,,Coating lasts several months with proper care.
-Wonderchef Non-stick Pan,Do users experience uneven heating?,,,Uneven heating may occur on low-quality stovetops.
-Tupperware Storage Containers,Are the lids durable over long-term use?,,,Lids are durable for years of daily use.
-Tupperware Storage Containers,Do the containers retain odor?,,,Strong-smelling foods may leave odor.
-PlayStation 5,What heating issues do gamers report?,,,Some users experience mild heating during heavy gaming.
-PlayStation 5,Are download speeds consistent for most users?,,,Download speeds depend heavily on network quality.
-Nintendo Switch OLED,Does the OLED screen face burn-in issues?,,,Burn-in is possible but extremely rare in normal use.
-Nintendo Switch OLED,Are there frequent Joy-Con drift complaints?,,,Joy-Con drift still occurs in some units.
-Meta Quest 3,Is the mixed reality tracking accurate?,,,Mixed reality tracking is accurate for indoor spaces.
-Meta Quest 3,Do users complain about headset weight?,,,Some users find the headset slightly heavy after long sessions.
-Logitech G29 Racing Wheel,How realistic is the force feedback?,,,Force feedback feels realistic for most racing games.
-Logitech G29 Racing Wheel,Do users face calibration issues?,,,Calibration issues occur occasionally on PC.
-BenQ Gaming Monitor,How good is the color accuracy?,,,Color accuracy is strong out of the box.
-BenQ Gaming Monitor,Does the monitor suffer from backlight bleeding?,,,Slight backlight bleed can appear on dark scenes.
-Levi’s 511 Slim Fit Jeans,Do users find durability issues after washing?,,,Fabric remains durable but may fade after repeated washes.
-Levi’s 511 Slim Fit Jeans,Is the fit consistent across batches?,,,Fit is consistent for most users.
-Adidas Ultraboost Running Shoes,Do users experience heel slippage?,,,Heel slippage is minimal for correct sizing.
-Adidas Ultraboost Running Shoes,Are the shoes comfortable for long runs?,,,They are comfortable for long runs due to soft cushioning.
-Puma Hoodie,Does the fabric fade after multiple washes?,,,Fabric may fade slightly over many washes.
-Puma Hoodie,How warm is it in winter conditions?,,,It provides moderate warmth in winter.
-Fabindia Cotton Kurta,Is the sizing accurate?,,,Sizing is generally accurate.
-Fabindia Cotton Kurta,Does the color bleed during washing?,,,Some colors may bleed in the first wash.
-Titan Wristwatch,How accurate is the timekeeping?,,,Timekeeping is precise with minimal drift.
-Titan Wristwatch,Are straps long-lasting?,,,Straps last long with regular maintenance.
-Dyson Airwrap,Are users satisfied with the curling performance?,,,Curling performance is effective even without high heat.
-Dyson Airwrap,Does it overheat during extended use?,,,Overheating is rare but can occur with prolonged use.
-Loreal Revitalift Serum,Do users see visible anti-aging results?,,,Users see mild improvements in skin texture.
-Loreal Revitalift Serum,Are there issues with skin irritation?,,,Some users experience irritation if used excessively.
-Gillette Mach3 Razor,How long does each blade last?,,,Each blade lasts multiple shaves.
-Gillette Mach3 Razor,Do users face skin cuts or razor burns?,,,Razor burns occur if used without lubrication.
-Philips Hair Straightener,How well does it handle frizz?,,,Works well for frizz control on most hair types.
-Philips Hair Straightener,Does the ceramic coating wear off over time?,,,Ceramic coating may wear off after years of use.
-Neutrogena Sunscreen SPF 50,Is it non-greasy as advertised?,,,It is lightweight and non-greasy for most users.
-Neutrogena Sunscreen SPF 50,Do users report white cast issues?,,,A slight white cast appears on darker skin tones.
-Pampers Baby Diapers,Do users face leakage problems?,,,Some leakage occurs during overnight use.
-Pampers Baby Diapers,Are they gentle on sensitive skin?,,,They are gentle and suitable for sensitive skin.
-Chicco Baby Stroller,Is it easy to fold and transport?,,,Folding is easy and convenient.
-Chicco Baby Stroller,Are the wheels durable?,,,Wheels are durable for long-term outdoor use.
-LEGO Classic Blocks,Do kids find variety in the pieces?,,,Good variety of pieces for creativity.
-LEGO Classic Blocks,Are there complaints about sharp edges?,,,Blocks have smooth edges and are safe.
-Hot Wheels Car Pack,Are the designs durable?,,,Designs are vibrant and durable.
-Hot Wheels Car Pack,Do wheels break easily?,,,Wheels may loosen after rough use.
-Fisher-Price Activity Gym,Are the toys engaging enough?,,,Toys are engaging for infants.
-Fisher-Price Activity Gym,Is the mat washable?,,,The mat is washable and easy to clean.
-Bosch Cordless Drill,How long does the battery last?,,,Battery lasts long for home use.
-Bosch Cordless Drill,Do users face chuck tightening problems?,,,Chuck loosening is uncommon but possible.
-Black+Decker Screwdriver Set,Is the build quality durable?,,,Build quality is reliable.
-Black+Decker Screwdriver Set,Are the bits prone to rusting?,,,Bits may show rust if stored improperly.
-Stanley Tape Measure,Is the tape sturdy?,,,Tape is sturdy and long-lasting.
-Stanley Tape Measure,Do users encounter retracting issues?,,,Retraction issues may appear after heavy use.
-Makita Angle Grinder,Does it vibrate too much during use?,,,Vibration is noticeable but manageable.
-Makita Angle Grinder,What overheating problems are common?,,,Overheating occurs during extended heavy tasks.
-3M Safety Goggles,Do they fog up easily?,,,Goggles fog in humid conditions.
-3M Safety Goggles,Are users comfortable wearing them for long durations?,,,Comfortable for extended wearing.
-Michelin Car Tyre,How good is the road grip in rainy conditions?,,,Grip is strong even on wet roads.
-Michelin Car Tyre,Do users complain about premature wear?,,,Premature wear happens only with rough usage.
-Amaron Car Battery,How long does the battery last?,,,
-Amaron Car Battery,Are there frequent charging issues?,,,
-Steelbird Full-face Helmet,Is it comfortable for long rides?,,,
-Steelbird Full-face Helmet,Do visors scratch easily?,,,
-Wildcraft Backpack,Is it suitable for heavy loads?,,,
-Wildcraft Backpack,Does the chain get stuck?,,,
-Skybags Suitcase,How durable are the wheels?,,,
-Skybags Suitcase,Does the surface scratch easily?,,,
-Pedigree Dog Food,Do dogs enjoy the flavor?,,,
-Pedigree Dog Food,Any digestion issues reported?,,,
-Whiskas Cat Food,Is the nutrition balanced?,,,
-Whiskas Cat Food,Do cats reject certain flavors?,,,
-PetSafe Automatic Feeder,Is the feeder timing accurate?,,,
-PetSafe Automatic Feeder,Do users face jamming issues?,,,
-Organic Potting Soil Mix,Does it help plant growth effectively?,,,
-Organic Potting Soil Mix,Are there complaints about insects?,,,
-Plastic Planter Pots,Are they durable in sunlight?,,,
-Plastic Planter Pots,Do they crack easily?,,,
+product,product category,question,ground_truth
+Samsung Galaxy S24 Ultra,Electronics,What performance issues do users commonly report with the S24 Ultra?,Users commonly report minor heating during long gaming or camera use but no major throttling issues.
+Samsung Galaxy S24 Ultra,Electronics,How is the battery life compared to previous Samsung flagships?,"Battery life is generally better than previous Samsung models, lasting a full day with mixed use."
+Apple iPhone 15 Pro,Electronics,What thermal problems do users experience on the iPhone 15 Pro?,"Some users experience heating during intensive tasks, especially gaming and 4K recording."
+Apple iPhone 15 Pro,Electronics,How durable is the titanium body in real-world use?,The titanium frame is durable but prone to cosmetic scratches.
+Sony WH-1000XM5,Electronics,What complaints do users have about ANC performance?,A few users feel ANC struggles with sharp high-frequency noises.
+Sony WH-1000XM5,Electronics,Are the ear cushions comfortable for long usage?,Most users find the cushions comfortable for 3–4 hours of continuous use.
+Bose SoundLink Revolve,Electronics,Does the speaker perform well outdoors?,It performs well outdoors but loses bass in open areas.
+Bose SoundLink Revolve,Electronics,What connectivity issues are commonly reported?,Some users report Bluetooth reconnection issues.
+Amazon Echo Dot,Electronics,How accurate is voice detection in noisy environments?,Voice detection works well but struggles in very noisy rooms.
+Amazon Echo Dot,Electronics,Do users face WiFi disconnection issues?,"Occasional WiFi drops are reported, mostly with 2.4 GHz networks."
+Sleepwell Memory Foam Mattress,Home & Living,Do users find the mattress too soft or too firm?,Most users describe it as medium-firm; a minority find it too soft.
+Sleepwell Memory Foam Mattress,Home & Living,Does it retain body heat over long sleep durations?,Memory foam retains some heat but is manageable for most sleepers.
+IKEA Linnmon Study Table,Home & Living,Is the table stable and durable?,It is stable for normal tasks but may wobble under heavy weight.
+IKEA Linnmon Study Table,Home & Living,Are there assembly difficulties users frequently face?,Assembly is simple but requires careful alignment of legs
+Wakefit Office Chair,Home & Living,How good is the lumbar support?,Lumbar support is adequate for long hours.
+Wakefit Office Chair,Home & Living,Do users report any noise from the wheels?,Some users experience mild noise from the wheels over time.
+Philips LED Desk Lamp,Home & Living,Is the brightness sufficient for reading at night?,Brightness is sufficient for reading and work.
+Philips LED Desk Lamp,Home & Living,Do users experience flickering issues?,Rare flickering issues appear after prolonged use.
+Godrej Safe Locker,Home & Living,How secure is the locking mechanism?,Locking mechanism is strong and secure.
+Godrej Safe Locker,Home & Living,Are there concerns about battery drainage?,Keypad models may drain batteries faster if used frequently.
+Instant Pot Duo,Kitchen Appliances & Tools,Are users satisfied with the pressure-cooking performance?,Users are satisfied with pressure cooking performance and consistency.
+Instant Pot Duo,Kitchen Appliances & Tools,Do they face sealing ring or steam release issues?,Steam release and sealing ring issues occur occasionally.
+Philips Air Fryer,Kitchen Appliances & Tools,How reliable is temperature control?,Temperature control is reliable and accurate
+Philips Air Fryer,Kitchen Appliances & Tools,What cleaning difficulties are commonly mentioned?,Cleaning the basket and mesh can be challenging.
+Milton Thermosteel Flask,Kitchen Appliances & Tools,Does it retain heat for long durations?,It retains heat for 18–24 hours.
+Milton Thermosteel Flask,Kitchen Appliances & Tools,Do users face leakage or smell issues?,Leakage issues are rare but occur if the lid is not tightened properly.
+Wonderchef Non-stick Pan,Kitchen Appliances & Tools,How long does the coating last?,Coating lasts several months with proper care.
+Wonderchef Non-stick Pan,Kitchen Appliances & Tools,Do users experience uneven heating?,Uneven heating may occur on low-quality stovetops.
+Tupperware Storage Containers,Kitchen Appliances & Tools,Are the lids durable over long-term use?,Lids are durable for years of daily use.
+Tupperware Storage Containers,Kitchen Appliances & Tools,Do the containers retain odor?,Strong-smelling foods may leave odor.
+PlayStation 5,Gaming & Entertainment,What heating issues do gamers report?,Some users experience mild heating during heavy gaming.
+PlayStation 5,Gaming & Entertainment,Are download speeds consistent for most users?,Download speeds depend heavily on network quality.
+Nintendo Switch OLED,Gaming & Entertainment,Does the OLED screen face burn-in issues?,Burn-in is possible but extremely rare in normal use.
+Nintendo Switch OLED,Gaming & Entertainment,Are there frequent Joy-Con drift complaints?,Joy-Con drift still occurs in some units.
+Meta Quest 3,Gaming & Entertainment,Is the mixed reality tracking accurate?,Mixed reality tracking is accurate for indoor spaces.
+Meta Quest 3,Gaming & Entertainment,Do users complain about headset weight?,Some users find the headset slightly heavy after long sessions.
+Logitech G29 Racing Wheel,Gaming & Entertainment,How realistic is the force feedback?,Force feedback feels realistic for most racing games.
+Logitech G29 Racing Wheel,Gaming & Entertainment,Do users face calibration issues?,Calibration issues occur occasionally on PC.
+BenQ Gaming Monitor,Gaming & Entertainment,How good is the color accuracy?,Color accuracy is strong out of the box.
+BenQ Gaming Monitor,Gaming & Entertainment,Does the monitor suffer from backlight bleeding?,Slight backlight bleed can appear on dark scenes.
+Levi’s 511 Slim Fit Jeans,Fashion & Clothing,Do users find durability issues after washing?,Fabric remains durable but may fade after repeated washes.
+Levi’s 511 Slim Fit Jeans,Fashion & Clothing,Is the fit consistent across batches?,Fit is consistent for most users.
+Adidas Ultraboost Running Shoes,Fashion & Clothing,Do users experience heel slippage?,Heel slippage is minimal for correct sizing.
+Adidas Ultraboost Running Shoes,Fashion & Clothing,Are the shoes comfortable for long runs?,They are comfortable for long runs due to soft cushioning.
+Puma Hoodie,Fashion & Clothing,Does the fabric fade after multiple washes?,Fabric may fade slightly over many washes.
+Puma Hoodie,Fashion & Clothing,How warm is it in winter conditions?,It provides moderate warmth in winter.
+Fabindia Cotton Kurta,Fashion & Clothing,Is the sizing accurate?,Sizing is generally accurate.
+Fabindia Cotton Kurta,Fashion & Clothing,Does the color bleed during washing?,Some colors may bleed in the first wash.
+Titan Wristwatch,Fashion & Clothing,How accurate is the timekeeping?,Timekeeping is precise with minimal drift.
+Titan Wristwatch,Fashion & Clothing,Are straps long-lasting?,Straps last long with regular maintenance.
+Dyson Airwrap,Beauty & Personal Care,Are users satisfied with the curling performance?,Curling performance is effective even without high heat.
+Dyson Airwrap,Beauty & Personal Care,Does it overheat during extended use?,Overheating is rare but can occur with prolonged use.
+Loreal Revitalift Serum,Beauty & Personal Care,Do users see visible anti-aging results?,Users see mild improvements in skin texture.
+Loreal Revitalift Serum,Beauty & Personal Care,Are there issues with skin irritation?,Some users experience irritation if used excessively.
+Gillette Mach3 Razor,Beauty & Personal Care,How long does each blade last?,Each blade lasts multiple shaves.
+Gillette Mach3 Razor,Beauty & Personal Care,Do users face skin cuts or razor burns?,Razor burns occur if used without lubrication.
+Philips Hair Straightener,Beauty & Personal Care,How well does it handle frizz?,Works well for frizz control on most hair types.
+Philips Hair Straightener,Beauty & Personal Care,Does the ceramic coating wear off over time?,Ceramic coating may wear off after years of use.
+Neutrogena Sunscreen SPF 50,Beauty & Personal Care,Is it non-greasy as advertised?,It is lightweight and non-greasy for most users.
+Neutrogena Sunscreen SPF 50,Beauty & Personal Care,Do users report white cast issues?,A slight white cast appears on darker skin tones.
+Pampers Baby Diapers,Baby & Kids Products,Do users face leakage problems?,Some leakage occurs during overnight use.
+Pampers Baby Diapers,Baby & Kids Products,Are they gentle on sensitive skin?,They are gentle and suitable for sensitive skin.
+Chicco Baby Stroller,Baby & Kids Products,Is it easy to fold and transport?,Folding is easy and convenient.
+Chicco Baby Stroller,Baby & Kids Products,Are the wheels durable?,Wheels are durable for long-term outdoor use.
+LEGO Classic Blocks,Baby & Kids Products,Do kids find variety in the pieces?,Good variety of pieces for creativity.
+LEGO Classic Blocks,Baby & Kids Products,Are there complaints about sharp edges?,Blocks have smooth edges and are safe.
+Hot Wheels Car Pack,Baby & Kids Products,Are the designs durable?,Designs are vibrant and durable.
+Hot Wheels Car Pack,Baby & Kids Products,Do wheels break easily?,Wheels may loosen after rough use.
+Fisher-Price Activity Gym,Baby & Kids Products,Are the toys engaging enough?,Toys are engaging for infants.
+Fisher-Price Activity Gym,Baby & Kids Products,Is the mat washable?,The mat is washable and easy to clean.
+Bosch Cordless Drill,Tools & Hardware,How long does the battery last?,Battery lasts long for home use.
+Bosch Cordless Drill,Tools & Hardware,Do users face chuck tightening problems?,Chuck loosening is uncommon but possible.
+Black+Decker Screwdriver Set,Tools & Hardware,Is the build quality durable?,Build quality is reliable.
+Black+Decker Screwdriver Set,Tools & Hardware,Are the bits prone to rusting?,Bits may show rust if stored improperly.
+Stanley Tape Measure,Tools & Hardware,Is the tape sturdy?,Tape is sturdy and long-lasting.
+Stanley Tape Measure,Tools & Hardware,Do users encounter retracting issues?,Retraction issues may appear after heavy use.
+Makita Angle Grinder,Tools & Hardware,Does it vibrate too much during use?,Vibration is noticeable but manageable.
+Makita Angle Grinder,Tools & Hardware,What overheating problems are common?,Overheating occurs during extended heavy tasks.
+3M Safety Goggles,Tools & Hardware,Do they fog up easily?,Goggles fog in humid conditions.
+3M Safety Goggles,Tools & Hardware,Are users comfortable wearing them for long durations?,Comfortable for extended wearing.
+Michelin Car Tyre,Automotive & Travel Gear,How good is the road grip in rainy conditions?,Grip is strong even on wet roads.
+Michelin Car Tyre,Automotive & Travel Gear,Do users complain about premature wear?,Premature wear happens only with rough usage.
+Amaron Car Battery,Automotive & Travel Gear,How long does the battery last?,Lasts 3–4 years on average.
+Amaron Car Battery,Automotive & Travel Gear,Are there frequent charging issues?,Users rarely face charging issues.
+Steelbird Full-face Helmet,Automotive & Travel Gear,Is it comfortable for long rides?,Comfortable padding for long rides.
+Steelbird Full-face Helmet,Automotive & Travel Gear,Do visors scratch easily?,Visors can scratch with frequent use.
+Wildcraft Backpack,Automotive & Travel Gear,Is it suitable for heavy loads?,Carries heavy loads comfortably.
+Wildcraft Backpack,Automotive & Travel Gear,Does the chain get stuck?,Zippers may stick after long-term use.
+Skybags Suitcase,Automotive & Travel Gear,How durable are the wheels?,Wheels are smooth and durable.
+Skybags Suitcase,Automotive & Travel Gear,Does the surface scratch easily?,Surface scratches develop over time.
+Pedigree Dog Food,Pet Products,Do dogs enjoy the flavor?,Most dogs enjoy the taste.
+Pedigree Dog Food,Pet Products,Any digestion issues reported?,Minor digestion issues occur in sensitive dogs.
+Whiskas Cat Food,Pet Products,Is the nutrition balanced?,Nutritionally balanced for adult cats.
+Whiskas Cat Food,Pet Products,Do cats reject certain flavors?,Some cats dislike specific flavors.
+PetSafe Automatic Feeder,Pet Products,Is the feeder timing accurate?,Timing mechanism is accurate.
+PetSafe Automatic Feeder,Pet Products,Do users face jamming issues?,Jamming occurs if large kibble is used.
+Organic Potting Soil Mix,Gardening & Outdoors,Does it help plant growth effectively?,Supports healthy plant growth.
+Organic Potting Soil Mix,Gardening & Outdoors,Are there complaints about insects?,May contain small insects due to organic material.
+Plastic Planter Pots,Gardening & Outdoors,Are they durable in sunlight?,Durable for outdoor sunlight.
+Plastic Planter Pots,Gardening & Outdoors,Do they crack easily?,Cracking occurs if exposed to extreme heat.

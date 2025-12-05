@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "boto3>=1.42.3",
     "ragas>=0.4.0",
     "requests>=2.32.5",
 ]
