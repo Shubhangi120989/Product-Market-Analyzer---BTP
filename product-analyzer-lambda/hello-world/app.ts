@@ -49,7 +49,7 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
             product_category: product_category,
             product_description: product_description || "",
             status: "pending",
-            user: "system@lambda.com" // Lambda user identifier
+            user: "shubhangi120989@gmail.com" // Lambda user identifier
         });
 
         if (!newProduct) {

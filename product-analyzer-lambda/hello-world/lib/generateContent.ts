@@ -1,20 +1,40 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+} from "@aws-sdk/client-bedrock-runtime";
 
-if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not defined");
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-2.0-flash", 
-  systemInstruction: "You are a market expert, you are supposed to provide insights of product and market through analyzing reddit posts."
+const client = new BedrockRuntimeClient({
+  region: "us-east-1"
 });
 
-export const generateContent = async (prompt: string): Promise<string> => {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-};
+const modelId = "amazon.nova-lite-v1:0";
 
-export const generateContentStream = async (prompt: string) => {
-    // This returns an object with a .stream property
-    return model.generateContentStream(prompt);
+export const generateContent = async (prompt: string): Promise<string> => {
+  const input = {
+    modelId,
+    contentType: "application/json",
+    accept: "application/json",
+    body: JSON.stringify({
+      messages: [
+        {
+          role: "user",
+          content: [{ text: "You are a market expert, you are supposed to provide insights of product and market through analyzing reddit posts." }],
+        },
+        {
+          role: "user",
+          content: [{ text: prompt }],
+        },
+      ],
+      inferenceConfig: {
+        max_new_tokens: 2048,
+        temperature: 0.7
+      }
+    })
+  };
+
+  const command = new InvokeModelCommand(input);
+  const response = await client.send(command);
+  const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+
+  return responseBody.output.message.content[0].text;
 };
