@@ -1,7 +1,8 @@
 import csv
 import json
 import boto3
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
+from typing import Dict, Any, Optional, Tuple
 
 lambda_client = boto3.client('lambda')
 
@@ -35,30 +36,63 @@ def get_unique_products(data):
     
     return unique_products, product_to_indices
 
-def process_unique_product(key, product_data):
-    try:
-        lambda_payload = { 
-            "product_name": product_data['product'], 
-            "product_description": "N/A", 
-            "product_category": product_data['product_category'] 
-        }
-        print(f"Processing unique product: {lambda_payload}")
+def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], max_retries: int = 3, delay: float = 2.0) -> Tuple[Tuple, Optional[str]]:
+    """Process a unique product with retry logic for failures."""
+    
+    for attempt in range(max_retries):
+        try:
+            lambda_payload = { 
+                "product_name": product_data['product'], 
+                "product_description": "N/A", 
+                "product_category": product_data['product_category'] 
+            }
+            print(f"Processing unique product (attempt {attempt + 1}/{max_retries}): {lambda_payload}")
 
-        response = lambda_client.invoke(
-            FunctionName=lambda_arn,
-            InvocationType='RequestResponse',
-            Payload=json.dumps(lambda_payload)
-        )
+            response = lambda_client.invoke(
+                FunctionName=lambda_arn,
+                InvocationType='RequestResponse',
+                Payload=json.dumps(lambda_payload)
+            )
 
-        response_payload = json.loads(response['Payload'].read().decode('utf-8'))
-        print(f"Response for {key}: {response_payload}")
-        product_id = json.loads(response_payload.get('body', {})).get('product', {}).get('_id')
-        
-        print(f"Unique product {key}: Product ID: {product_id}")
-        return key, product_id
-    except Exception as e:
-        print(f"Error processing unique product {key}: {e}")
-        return key, None
+            response_payload = json.loads(response['Payload'].read().decode('utf-8'))
+            print(f"Response for {key}: {response_payload}")
+            
+            # Check if response indicates an error
+            if response_payload.get('statusCode') == 500:
+                error_message = json.loads(response_payload.get('body', '{}')).get('error', 'Unknown error')
+                print(f"Lambda returned error (attempt {attempt + 1}): {error_message}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    continue
+                else:
+                    print(f"Max retries reached for {key}")
+                    return key, None
+            
+            product_id = json.loads(response_payload.get('body', '{}')).get('product', {}).get('_id')
+            
+            if product_id:
+                print(f"Unique product {key}: Product ID: {product_id}")
+                return key, product_id
+            else:
+                print(f"No product ID found in response for {key}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    continue
+                else:
+                    return key, None
+                    
+        except Exception as e:
+            print(f"Error processing unique product {key} (attempt {attempt + 1}): {e}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                print(f"Max retries reached for {key}")
+                return key, None
+    
+    return key, None
 
 def write_csv_with_product_ids(file_path, data, product_ids):
     with open(file_path.replace('.csv', '_with_product_ids.csv'), mode='w', newline='', encoding='utf-8') as file:
@@ -76,15 +110,16 @@ data = read_csv(file_name)
 unique_products, product_to_indices = get_unique_products(data)
 print(f"Found {len(unique_products)} unique products out of {len(data)} total rows")
 
-# Process unique products in parallel
+# Process unique products serially with retries
 unique_product_ids = {}
-with ThreadPoolExecutor(max_workers=100) as executor:
-    futures = {executor.submit(process_unique_product, key, product_data): key 
-               for key, product_data in unique_products.items()}
+for i, (key, product_data) in enumerate(unique_products.items()):
+    print(f"Processing {i+1}/{len(unique_products)}: {key}")
+    key, product_id = process_unique_product_with_retry(key, product_data)
+    unique_product_ids[key] = product_id
     
-    for future in as_completed(futures):
-        key, product_id = future.result()
-        unique_product_ids[key] = product_id
+    # Add a small delay between requests to avoid overwhelming the service
+    if i < len(unique_products) - 1:
+        time.sleep(1)
 
 # Map product IDs back to all rows
 product_ids = {}
@@ -95,3 +130,10 @@ for key, product_id in unique_product_ids.items():
 # Write updated CSV with product IDs
 write_csv_with_product_ids(file_name, data, product_ids)
 print("Processing complete. Updated CSV saved.")
+
+# Print summary of failed products
+failed_products = [key for key, product_id in unique_product_ids.items() if product_id is None]
+if failed_products:
+    print(f"\nFailed to process {len(failed_products)} products:")
+    for key in failed_products:
+        print(f"  - {key}")
