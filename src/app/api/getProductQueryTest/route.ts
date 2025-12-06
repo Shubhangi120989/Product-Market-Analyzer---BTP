@@ -2,17 +2,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getUser } from "@/lib/authHelper";
 import { Product } from "@/models/product.model";
-import { IMessage, Message } from "@/models/message.model";
 import { getEmbedding } from "@/lib/getEmbedding";
 import client from "@/lib/qdrantClient";
 import { generateContent } from "@/lib/generateContent";
 import dbConnect from "@/lib/dbConnect";
-import { number } from "zod";
 
 /**
  * Pipeline tuning constants
  */
-const BASE_MODEL:number=1;              //to indicate if the answers are coming from the base model or not
 const TOP_K_SEARCH = 30;        // how many candidates to fetch per hypothetical answer
 const MMR_SELECT = 20;          // how many items to keep after MMR per subquery
 const FUSED_TOP = 20;           // final number of chunks to include in prompt
@@ -190,6 +187,36 @@ async function retrieveTopPostsForEmbedding(embedding: Vector, productFilter: st
   }
 }
 
+/* -------------------- Helper: Build prompt from chunks -------------------- */
+
+function buildPromptFromChunks(
+  chunks: Array<{ payload?: any }>,
+  productName: string,
+  productDescription: string,
+  query: string
+): { prompt: string; contextList: string[] } {
+  const contextList: string[] = [];
+  let prompt = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
+
+  chunks.forEach((c, idx) => {
+    const title = c.payload?.title || "";
+    const selftext = c.payload?.selftext || "";
+    const topComments = (c.payload?.comments || []).slice(0, 5);
+    const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
+    let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
+    topComments.forEach((cm: any, i: number) => {
+      chunkStr += `${i + 1}. ${cm.text}\n`;
+    });
+    chunkStr += `Source: ${sourceUrl}\n\n`;
+    prompt += chunkStr;
+    contextList.push(chunkStr);
+  });
+
+  prompt += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
+
+  return { prompt, contextList };
+}
+
 /* -------------------- API handler -------------------- */
 
 export async function POST(req: NextRequest) {
@@ -198,7 +225,7 @@ export async function POST(req: NextRequest) {
     console.log("Connecting to database...");
     await dbConnect();
     console.log("Database connected successfully");
-    
+
     const user = await getUser();
     if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
@@ -214,33 +241,53 @@ export async function POST(req: NextRequest) {
     const productName: string = product.product_name;
     const productDescription: string = product.product_description || "";
 
+    // ==================== OPTIMIZED PARALLEL EXECUTION ====================
+
+    // OPTIMIZATION 1: Start query embedding early (for "without pipeline" approach)
+    // This runs in parallel with the pipeline's standalone query creation
+    const queryEmbPromise = getEmbedding(query);
+
     // ---------- WITH PIPELINE (MMR + RRF) ----------
-    // 1) Standalone query
+    // 1) Standalone query (depends on nothing)
     const standaloneQuery = await createStandaloneQuery(query, productName);
 
-    // 2) Subqueries
+    // 2) Subqueries (depends on standalone query)
     let subqueries = await createSubQueries(standaloneQuery);
     while (subqueries.length < 3) subqueries.push(`${standaloneQuery} (follow-up ${subqueries.length + 1})`);
 
-    // 3) Hypothetical answers
-    const hypotheticalAnswers = await Promise.all(subqueries.map(sq => createHypotheticalAnswer(sq)));
+    // OPTIMIZATION 2: Run hypothetical answers AND direct retrieval in parallel
+    // The query embedding was started early, so we can now await it and start direct retrieval
+    const [hypotheticalAnswers, queryEmb] = await Promise.all([
+      // 3) Hypothetical answers for all subqueries (parallel)
+      Promise.all(subqueries.map(sq => createHypotheticalAnswer(sq))),
+      // Await the early-started query embedding
+      queryEmbPromise
+    ]);
 
-    // 4) For each hypothetical answer: embed -> qdrant search -> collect candidates
-    const perAnswerBuckets: PerAnswerBucket[] = [];
-    for (let i = 0; i < hypotheticalAnswers.length; i++) {
-      const hyp = hypotheticalAnswers[i] || "";
-      const hypEmb = await getEmbedding(hyp);
+    // OPTIMIZATION 3: Start direct retrieval immediately (runs parallel with bucket processing)
+    const directHitsPromise = retrieveTopPostsForEmbedding(queryEmb, productName, 20);
 
-      const hits = await retrieveTopPostsForEmbedding(hypEmb, productName, TOP_K_SEARCH);
+    // OPTIMIZATION 4: Process all 3 buckets in PARALLEL (was sequential loop before)
+    // This is the BIGGEST optimization - each bucket does: embed -> search -> build candidates
+    const perAnswerBuckets: PerAnswerBucket[] = await Promise.all(
+      hypotheticalAnswers.map(async (hyp, i) => {
+        const hypotheticalAnswer = hyp || "";
 
-      const candidates: Candidate[] = await Promise.all(
-        hits.map(async (h) => {
+        // Embed the hypothetical answer
+        const hypEmbedding = await getEmbedding(hypotheticalAnswer);
+
+        // Search Qdrant with the hypothetical answer embedding
+        const hits = await retrieveTopPostsForEmbedding(hypEmbedding, productName, TOP_K_SEARCH);
+
+        // OPTIMIZATION 5: Trust Qdrant vectors - no fallback embedding calls
+        // We request with_vector: true, so vectors should always be present
+        const candidates: Candidate[] = hits.map((h) => {
           const title = h.payload?.title || "";
           const selftext = h.payload?.selftext || "";
-          const comments: string[] = (h.payload?.comments || []).slice(0, 5).map((c: any) => c.text || "");
-          const chunkText = [title, selftext, ...comments].filter(Boolean).join("\n");
 
-          const emb = h.vector ?? (chunkText ? await getEmbedding(chunkText) : await getEmbedding(title || selftext));
+          // Use the vector from Qdrant directly (we requested with_vector: true)
+          // Fall back to zero vector only if somehow missing (shouldn't happen)
+          const emb = h.vector || new Array(1536).fill(0);
 
           return {
             id: h.id ?? `${productName}_${Math.random().toString(36).slice(2, 8)}`,
@@ -249,18 +296,18 @@ export async function POST(req: NextRequest) {
             score: h.score,
             embedding: emb
           } as Candidate;
-        })
-      );
+        });
 
-      perAnswerBuckets.push({
-        subquery: subqueries[i] ?? standaloneQuery,
-        hypotheticalAnswer: hyp ?? "",
-        hypEmbedding: hypEmb,
-        candidates
-      });
-    }
+        return {
+          subquery: subqueries[i] ?? standaloneQuery,
+          hypotheticalAnswer,
+          hypEmbedding,
+          candidates
+        };
+      })
+    );
 
-    // 5) Apply MMR per hypothetical answer
+    // 5) Apply MMR per hypothetical answer (CPU-bound, fast)
     const mmrReducedLists: Candidate[][] = perAnswerBuckets.map(bucket =>
       applyMMR(bucket.candidates, bucket.hypEmbedding, Math.min(MMR_SELECT, bucket.candidates.length), MMR_LAMBDA)
     );
@@ -269,52 +316,21 @@ export async function POST(req: NextRequest) {
     const fused = reciprocalRankFusion(mmrReducedLists);
     const finalChunks = fused.slice(0, Math.min(FUSED_TOP, fused.length));
 
-    // 7) Build prompt and context list for pipeline
-    const contextWithPipelineList: string[] = [];
-    let promptWithPipeline = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
+    // 7) Build prompts (sync, fast)
+    const { prompt: promptWithPipeline, contextList: contextWithPipelineList } =
+      buildPromptFromChunks(finalChunks, productName, productDescription, query);
 
-    finalChunks.forEach((c, idx) => {
-      const title = c.payload?.title || "";
-      const selftext = c.payload?.selftext || "";
-      const topComments = (c.payload?.comments || []).slice(0, 5);
-      const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
-      let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
-      topComments.forEach((cm: any, i: number) => {
-        chunkStr += `${i + 1}. ${cm.text}\n`;
-      });
-      chunkStr += `Source: ${sourceUrl}\n\n`;
-      promptWithPipeline += chunkStr;
-      contextWithPipelineList.push(chunkStr);
-    });
+    // Await direct hits (should already be done by now since it started in parallel)
+    const directHits = await directHitsPromise;
 
-    promptWithPipeline += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
+    const { prompt: promptWithoutPipeline, contextList: contextWithoutPipelineList } =
+      buildPromptFromChunks(directHits, productName, productDescription, query);
 
-    const generatedWithPipeline = await generateContent(promptWithPipeline);
-
-    // ---------- WITHOUT PIPELINE (Direct retrieval) ----------
-    const queryEmb: Vector = await getEmbedding(query);
-    const hits = await retrieveTopPostsForEmbedding(queryEmb, productName, 20);
-
-    const contextWithoutPipelineList: string[] = [];
-    let promptWithoutPipeline = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
-
-    hits.forEach((c, idx) => {
-      const title = c.payload?.title || "";
-      const selftext = c.payload?.selftext || "";
-      const topComments = (c.payload?.comments || []).slice(0, 5);
-      const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
-      let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
-      topComments.forEach((cm: any, i: number) => {
-        chunkStr += `${i + 1}. ${cm.text}\n`;
-      });
-      chunkStr += `Source: ${sourceUrl}\n\n`;
-      promptWithoutPipeline += chunkStr;
-      contextWithoutPipelineList.push(chunkStr);
-    });
-
-    promptWithoutPipeline += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
-
-    const generatedWithoutPipeline = await generateContent(promptWithoutPipeline);
+    // OPTIMIZATION 6: Generate both final responses in PARALLEL
+    const [generatedWithPipeline, generatedWithoutPipeline] = await Promise.all([
+      generateContent(promptWithPipeline),
+      generateContent(promptWithoutPipeline)
+    ]);
 
     // Return both results. Do not save to DB (testing mode).
     return NextResponse.json({
