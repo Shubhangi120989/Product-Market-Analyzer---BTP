@@ -3,6 +3,8 @@ from pprint import pprint
 from ragas import SingleTurnSample
 from ragas.metrics import IDBasedContextPrecision
 from ragas.metrics import Faithfulness
+from ragas.llms import llm_factory
+from llm_client import NovaLLM 
 
 
 cookies = {
@@ -42,8 +44,8 @@ def ask_question(product_id, question):
     return response.json()
 
 
-question = 'which are the phones which are most talked about by the people and why?'
-product_id = '69171e0bafd4b95081102b9d'
+question = 'What performance issues do users commonly report with the S24 Ultra?'
+product_id = '69332bdf5e415a34a70d0855'
 
 # 1. api call krna hai
 response = ask_question(product_id, question)
@@ -55,6 +57,11 @@ context_with_pipeline = with_pipeline.get('context_with_pipeline')
 without_pipeline = response.get('without_pipeline')
 without_pipeline_ai_response = without_pipeline.get('ai_response')
 context_without_pipeline = without_pipeline.get('context_without_pipeline')
+
+print(response)
+#create client
+novallm = NovaLLM()              # create instance
+llm = llm_factory("nova-lite", client=novallm)
 
 # 4 matrix me yeh sab chize input dalna for ex. 
 # Initialize the faithfulness metric

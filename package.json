@@ -16,7 +16,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.943.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.946.0",
     "@aws-sdk/client-lambda": "^3.758.0",
     "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^4.1.3",

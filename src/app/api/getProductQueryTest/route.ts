@@ -192,140 +192,140 @@ async function retrieveTopPostsForEmbedding(embedding: Vector, productFilter: st
 /* -------------------- API handler -------------------- */
 
 export async function POST(req: NextRequest) {
-    try {
-        const user = await getUser();
-        if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-        const body = await req.json();
-        const { query, productId } = body ?? {};
-        if (!query || !productId) return NextResponse.json({ message: "query and productId are required" }, { status: 400 });
+    const body = await req.json();
+    const { query, productId } = body ?? {};
+    if (!query || !productId) return NextResponse.json({ message: "query and productId are required" }, { status: 400 });
 
-        const product = await Product.findById(productId);
-        if (!product || product.status === "pending") return NextResponse.json({ message: "Product not ready" }, { status: 400 });
+    const product = await Product.findById(productId);
+    if (!product || product.status === "pending") return NextResponse.json({ message: "Product not ready" }, { status: 400 });
 
-        const productName: string = product.product_name;
-        const productDescription: string = product.product_description || "";
+    const productName: string = product.product_name;
+    const productDescription: string = product.product_description || "";
 
-        // ---------- WITH PIPELINE (MMR + RRF) ----------
-        // 1) Standalone query
-        const standaloneQuery = await createStandaloneQuery(query, productName);
+    // ---------- WITH PIPELINE (MMR + RRF) ----------
+    // 1) Standalone query
+    const standaloneQuery = await createStandaloneQuery(query, productName);
 
-        // 2) Subqueries
-        let subqueries = await createSubQueries(standaloneQuery);
-        while (subqueries.length < 3) subqueries.push(`${standaloneQuery} (follow-up ${subqueries.length + 1})`);
+    // 2) Subqueries
+    let subqueries = await createSubQueries(standaloneQuery);
+    while (subqueries.length < 3) subqueries.push(`${standaloneQuery} (follow-up ${subqueries.length + 1})`);
 
-        // 3) Hypothetical answers
-        const hypotheticalAnswers = await Promise.all(subqueries.map(sq => createHypotheticalAnswer(sq)));
+    // 3) Hypothetical answers
+    const hypotheticalAnswers = await Promise.all(subqueries.map(sq => createHypotheticalAnswer(sq)));
 
-        // 4) For each hypothetical answer: embed -> qdrant search -> collect candidates
-        const perAnswerBuckets: PerAnswerBucket[] = [];
-        for (let i = 0; i < hypotheticalAnswers.length; i++) {
-            const hyp = hypotheticalAnswers[i] || "";
-            const hypEmb = await getEmbedding(hyp);
+    // 4) For each hypothetical answer: embed -> qdrant search -> collect candidates
+    const perAnswerBuckets: PerAnswerBucket[] = [];
+    for (let i = 0; i < hypotheticalAnswers.length; i++) {
+      const hyp = hypotheticalAnswers[i] || "";
+      const hypEmb = await getEmbedding(hyp);
 
-            const hits = await retrieveTopPostsForEmbedding(hypEmb, productName, TOP_K_SEARCH);
+      const hits = await retrieveTopPostsForEmbedding(hypEmb, productName, TOP_K_SEARCH);
 
-            const candidates: Candidate[] = await Promise.all(
-                hits.map(async (h) => {
-                    const title = h.payload?.title || "";
-                    const selftext = h.payload?.selftext || "";
-                    const comments: string[] = (h.payload?.comments || []).slice(0, 5).map((c: any) => c.text || "");
-                    const chunkText = [title, selftext, ...comments].filter(Boolean).join("\n");
+      const candidates: Candidate[] = await Promise.all(
+        hits.map(async (h) => {
+          const title = h.payload?.title || "";
+          const selftext = h.payload?.selftext || "";
+          const comments: string[] = (h.payload?.comments || []).slice(0, 5).map((c: any) => c.text || "");
+          const chunkText = [title, selftext, ...comments].filter(Boolean).join("\n");
 
-                    const emb = h.vector ?? (chunkText ? await getEmbedding(chunkText) : await getEmbedding(title || selftext));
+          const emb = h.vector ?? (chunkText ? await getEmbedding(chunkText) : await getEmbedding(title || selftext));
 
-                    return {
-                        id: h.id ?? `${productName}_${Math.random().toString(36).slice(2, 8)}`,
-                        text: `${title}\n${selftext}`.trim(),
-                        payload: h.payload,
-                        score: h.score,
-                        embedding: emb
-                    } as Candidate;
-                })
-            );
+          return {
+            id: h.id ?? `${productName}_${Math.random().toString(36).slice(2, 8)}`,
+            text: `${title}\n${selftext}`.trim(),
+            payload: h.payload,
+            score: h.score,
+            embedding: emb
+          } as Candidate;
+        })
+      );
 
-            perAnswerBuckets.push({
-                subquery: subqueries[i] ?? standaloneQuery,
-                hypotheticalAnswer: hyp ?? "",
-                hypEmbedding: hypEmb,
-                candidates
-            });
-        }
-
-        // 5) Apply MMR per hypothetical answer
-        const mmrReducedLists: Candidate[][] = perAnswerBuckets.map(bucket =>
-            applyMMR(bucket.candidates, bucket.hypEmbedding, Math.min(MMR_SELECT, bucket.candidates.length), MMR_LAMBDA)
-        );
-
-        // 6) Apply Reciprocal Rank Fusion (RRF) across the lists
-        const fused = reciprocalRankFusion(mmrReducedLists);
-        const finalChunks = fused.slice(0, Math.min(FUSED_TOP, fused.length));
-
-        // 7) Build prompt and context string for pipeline
-        let contextWithPipeline = "";
-        let promptWithPipeline = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
-
-        finalChunks.forEach((c, idx) => {
-            const title = c.payload?.title || "";
-            const selftext = c.payload?.selftext || "";
-            const topComments = (c.payload?.comments || []).slice(0, 5);
-            const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
-            let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
-            topComments.forEach((cm: any, i: number) => {
-                chunkStr += `${i + 1}. ${cm.text}\n`;
-            });
-            chunkStr += `Source: ${sourceUrl}\n\n`;
-            promptWithPipeline += chunkStr;
-            contextWithPipeline += chunkStr;
-        });
-
-        promptWithPipeline += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
-
-        const generatedWithPipeline = await generateContent(promptWithPipeline);
-
-        // ---------- WITHOUT PIPELINE (Direct retrieval) ----------
-        const queryEmb: Vector = await getEmbedding(query);
-        const hits = await retrieveTopPostsForEmbedding(queryEmb, productName, 20);
-
-        let contextWithoutPipeline = "";
-        let promptWithoutPipeline = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
-
-        hits.forEach((c, idx) => {
-            const title = c.payload?.title || "";
-            const selftext = c.payload?.selftext || "";
-            const topComments = (c.payload?.comments || []).slice(0, 5);
-            const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
-            let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
-            topComments.forEach((cm: any, i: number) => {
-                chunkStr += `${i + 1}. ${cm.text}\n`;
-            });
-            chunkStr += `Source: ${sourceUrl}\n\n`;
-            promptWithoutPipeline += chunkStr;
-            contextWithoutPipeline += chunkStr;
-        });
-
-        promptWithoutPipeline += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
-
-        const generatedWithoutPipeline = await generateContent(promptWithoutPipeline);
-
-        // Return both results. Do not save to DB (testing mode).
-        return NextResponse.json({
-            with_pipeline: {
-                ai_response: generatedWithPipeline,
-                context_with_pipeline: contextWithPipeline
-            },
-            without_pipeline: {
-                ai_response: generatedWithoutPipeline,
-                context_without_pipeline: contextWithoutPipeline
-            },
-            meta: {
-                standaloneQuery,
-                subqueries,
-                hypotheticalAnswers
-            }
-        });
-    } catch (err) {
-        console.error("Pipeline error:", err);
-        return NextResponse.json({ message: "Internal server error", error: String(err) }, { status: 500 });
+      perAnswerBuckets.push({
+        subquery: subqueries[i] ?? standaloneQuery,
+        hypotheticalAnswer: hyp ?? "",
+        hypEmbedding: hypEmb,
+        candidates
+      });
     }
+
+    // 5) Apply MMR per hypothetical answer
+    const mmrReducedLists: Candidate[][] = perAnswerBuckets.map(bucket =>
+      applyMMR(bucket.candidates, bucket.hypEmbedding, Math.min(MMR_SELECT, bucket.candidates.length), MMR_LAMBDA)
+    );
+
+    // 6) Apply Reciprocal Rank Fusion (RRF) across the lists
+    const fused = reciprocalRankFusion(mmrReducedLists);
+    const finalChunks = fused.slice(0, Math.min(FUSED_TOP, fused.length));
+
+    // 7) Build prompt and context list for pipeline
+    const contextWithPipelineList: string[] = [];
+    let promptWithPipeline = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
+
+    finalChunks.forEach((c, idx) => {
+      const title = c.payload?.title || "";
+      const selftext = c.payload?.selftext || "";
+      const topComments = (c.payload?.comments || []).slice(0, 5);
+      const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
+      let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
+      topComments.forEach((cm: any, i: number) => {
+        chunkStr += `${i + 1}. ${cm.text}\n`;
+      });
+      chunkStr += `Source: ${sourceUrl}\n\n`;
+      promptWithPipeline += chunkStr;
+      contextWithPipelineList.push(chunkStr);
+    });
+
+    promptWithPipeline += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
+
+    const generatedWithPipeline = await generateContent(promptWithPipeline);
+
+    // ---------- WITHOUT PIPELINE (Direct retrieval) ----------
+    const queryEmb: Vector = await getEmbedding(query);
+    const hits = await retrieveTopPostsForEmbedding(queryEmb, productName, 20);
+
+    const contextWithoutPipelineList: string[] = [];
+    let promptWithoutPipeline = `Product: ${productName}\nProduct description: ${productDescription}\n\nContext (posts about this product):\n\n`;
+
+    hits.forEach((c, idx) => {
+      const title = c.payload?.title || "";
+      const selftext = c.payload?.selftext || "";
+      const topComments = (c.payload?.comments || []).slice(0, 5);
+      const sourceUrl = c.payload?.url || c.payload?.permalink || "unknown";
+      let chunkStr = `Chunk ${idx + 1}:\nTitle: ${title}\nSelftext: ${selftext}\nTop comments:\n`;
+      topComments.forEach((cm: any, i: number) => {
+        chunkStr += `${i + 1}. ${cm.text}\n`;
+      });
+      chunkStr += `Source: ${sourceUrl}\n\n`;
+      promptWithoutPipeline += chunkStr;
+      contextWithoutPipelineList.push(chunkStr);
+    });
+
+    promptWithoutPipeline += `\nUser question: ${query}\n\nUsing ONLY the context above, produce a thorough and actionable answer to the user's question. Cite sources inline (give the Source URL next to the point you extract). Keep the answer factual and avoid inventing claims not found in the posts.`;
+
+    const generatedWithoutPipeline = await generateContent(promptWithoutPipeline);
+
+    // Return both results. Do not save to DB (testing mode).
+    return NextResponse.json({
+      with_pipeline: {
+        ai_response: generatedWithPipeline,
+        context_with_pipeline: contextWithPipelineList
+      },
+      without_pipeline: {
+        ai_response: generatedWithoutPipeline,
+        context_without_pipeline: contextWithoutPipelineList
+      },
+      meta: {
+        standaloneQuery,
+        subqueries,
+        hypotheticalAnswers
+      }
+    });
+  } catch (err) {
+    console.error("Pipeline error:", err);
+    return NextResponse.json({ message: "Internal server error", error: String(err) }, { status: 500 });
+  }
 }
