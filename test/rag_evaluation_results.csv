@@ -1,0 +1,2 @@
+test_case_index,product_id,question,ground_truth,context_precision_with_pipeline,context_precision_without_pipeline,context_recall_with_pipeline,context_recall_without_pipeline,faithfulness_with_pipeline,faithfulness_without_pipeline,noise_sensitivity_with_pipeline,status,error_message
+1,69332bdf5e415a34a70d0855,What performance issues do users commonly report with the S24 Ultra?,Users commonly report minor heating during long gaming or camera use but no major throttling issues.,,,1.0,1.0,0.8125,0.5555555555555556,0.0625,SUCCESS,
