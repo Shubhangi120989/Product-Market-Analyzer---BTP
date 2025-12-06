@@ -5,8 +5,7 @@ from typing import List, Dict, Any
 from pprint import pprint
 from ragas import SingleTurnSample
 from ragas.metrics import ContextPrecision, ContextRecall, Faithfulness, NoiseSensitivity
-from ragas.llms import llm_factory
-from llm_client import NovaLLM
+from langchain_aws import ChatBedrock, BedrockEmbeddings
 import logging
 from datetime import datetime
 
@@ -55,19 +54,42 @@ class RAGEvaluator:
         logger.info("Initializing RAG Evaluator...")
 
         try:
-            # Initialize LLM
-            self.nova_llm = NovaLLM()
-            self.llm = llm_factory("amazon-nova-lite", client=self.nova_llm)
+            # Initialize Bedrock configuration for Nova Lite
+            config = {
+                "credentials_profile_name": "default",  # Use default AWS profile
+                "region_name": "us-east-1",  # Nova Lite region
+                "model_id": "us.amazon.nova-lite-v1:0",  # Nova Lite model ID
+                "model_kwargs": {"temperature": 0.1},  # Low temperature for consistent evaluation
+            }
+
+            # Initialize ChatBedrock for RAGAS compatibility
+            logger.info("Initializing ChatBedrock with Nova Lite...")
+            self.llm = ChatBedrock(
+                model=config["model_id"],
+                region=config["region_name"],
+                credentials_profile_name=config["credentials_profile_name"],
+                model_kwargs=config["model_kwargs"],
+            )
+            
+            # Initialize embeddings (optional, for future use)
+            self.embeddings = BedrockEmbeddings(
+                credentials_profile_name=config["credentials_profile_name"],
+                region_name=config["region_name"],
+                model_id="amazon.titan-embed-text-v1",  # Default embedding model
+            )
 
             # Attach LLM to RAGAS metrics
+            logger.info("Initializing RAGAS metrics...")
             self.context_precision = ContextPrecision(llm=self.llm)
             self.context_recall = ContextRecall(llm=self.llm)
-            self.faithfulness = Faithfulness(llm=self.llm)  # now works!
+            self.faithfulness = Faithfulness(llm=self.llm)
             self.noise_sensitivity = NoiseSensitivity(llm=self.llm)
 
-            logger.info("RAG Evaluator initialized successfully")
+            logger.info("RAG Evaluator initialized successfully with BedrockChat")
         except Exception as e:
             logger.error(f"Failed to initialize RAG Evaluator: {str(e)}")
+            logger.error("Make sure your AWS credentials are configured properly")
+            logger.error("Run 'aws configure' to set up your credentials")
             raise    
 
     def ask_question(self, product_id: str, question: str) -> Dict[str, Any]:
@@ -335,7 +357,7 @@ class RAGEvaluator:
 
 
 def main():
-    input_csv = r"Rag Pipeline Analysis Data - Sheet1_with_product_ids.csv"
+    input_csv = r"Rag Pipeline Analysis Data - Sheet1_with_product_ids2.csv"
     output_csv = r"rag_evaluation_results.csv"
     
     evaluator = RAGEvaluator()
