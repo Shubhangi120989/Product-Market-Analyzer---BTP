@@ -59,6 +59,7 @@ without_pipeline_ai_response = without_pipeline.get('ai_response')
 context_without_pipeline = without_pipeline.get('context_without_pipeline')
 
 print(response)
+
 #create client
 novallm = NovaLLM()              # create instance
 llm = llm_factory("nova-lite", client=novallm)

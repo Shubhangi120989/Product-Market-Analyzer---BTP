@@ -23,3 +23,13 @@ class NovaLLM:
             inferenceConfig=kwargs.get("inferenceConfig", {"maxTokens": 256})
         )
         return resp["output"]["message"]["content"][0]["text"]
+
+
+# llm = NovaLLM()
+# def generate_text(prompt: str, **kwargs) -> str:
+#     return llm(prompt, **kwargs)
+
+# if __name__ == "__main__":
+#     sample_prompt = "Explain the theory of relativity in simple terms."
+#     response = generate_text(sample_prompt)
+#     print("Response:", response)

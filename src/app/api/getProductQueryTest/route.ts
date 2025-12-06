@@ -6,6 +6,7 @@ import { IMessage, Message } from "@/models/message.model";
 import { getEmbedding } from "@/lib/getEmbedding";
 import client from "@/lib/qdrantClient";
 import { generateContent } from "@/lib/generateContent";
+import dbConnect from "@/lib/dbConnect";
 import { number } from "zod";
 
 /**
@@ -193,6 +194,11 @@ async function retrieveTopPostsForEmbedding(embedding: Vector, productFilter: st
 
 export async function POST(req: NextRequest) {
   try {
+    // Connect to database first
+    console.log("Connecting to database...");
+    await dbConnect();
+    console.log("Database connected successfully");
+    
     const user = await getUser();
     if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
@@ -200,8 +206,10 @@ export async function POST(req: NextRequest) {
     const { query, productId } = body ?? {};
     if (!query || !productId) return NextResponse.json({ message: "query and productId are required" }, { status: 400 });
 
+    console.log("Searching for product with ID:", productId);
     const product = await Product.findById(productId);
     if (!product || product.status === "pending") return NextResponse.json({ message: "Product not ready" }, { status: 400 });
+    console.log("Product found:", product.product_name);
 
     const productName: string = product.product_name;
     const productDescription: string = product.product_description || "";

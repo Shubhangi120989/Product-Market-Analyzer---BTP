@@ -14,10 +14,10 @@ from datetime import datetime
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(f"rag_evaluation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
-        logging.StreamHandler()
-    ]
+    # handlers=[
+    #     # logging.FileHandler(f"rag_evaluation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
+    #     # logging.StreamHandler()
+    # ]
 )
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,7 @@ headers = {
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
 }
+
 
 class RAGEvaluator:
     def __init__(self):
@@ -82,7 +83,7 @@ class RAGEvaluator:
                 cookies=cookies,
                 headers=headers,
                 json=json_data,
-                timeout=60
+                timeout=60000
             )
             response.raise_for_status()
             return response.json()
@@ -331,9 +332,11 @@ class RAGEvaluator:
         logger.info(f"{'='*80}")
 
 
+
+
 def main():
-    input_csv = r"C:\complete web development\Product-Market-Analyzer - BTP\test\Rag Pipeline Analysis Data - Sheet1_with_product_ids.csv"
-    output_csv = r"C:\complete web development\Product-Market-Analyzer - BTP\test\rag_evaluation_results.csv"
+    input_csv = r"Rag Pipeline Analysis Data - Sheet1_with_product_ids.csv"
+    output_csv = r"rag_evaluation_results.csv"
     
     evaluator = RAGEvaluator()
     evaluator.run_evaluation(input_csv, output_csv, limit=100)

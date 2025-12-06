@@ -17,15 +17,23 @@ async function dbConnect():Promise<void>{
 
     }
     try{
-        const db=await mongoose.connect(`${process.env.MONGODB_URI}/${process.env.DB_NAME}` || " ");
-        connection.isConnected=db.connections[0]?.readyState;
-        console.log("New db connection created");
+        const connectionString = `${process.env.MONGODB_URI}/${process.env.DB_NAME}`;
+        console.log("Connecting to MongoDB with connection string:", connectionString.replace(/\/\/.*:.*@/, "//***:***@")); // Hide credentials in logs
+        
+        const db = await mongoose.connect(connectionString, {
+            serverSelectionTimeoutMS: 5000, // 5 seconds timeout
+            socketTimeoutMS: 45000, // 45 seconds socket timeout
+        });
+        
+        // Disable buffering to prevent timeout issues
+        mongoose.set('bufferCommands', false);
+        
+        connection.isConnected = db.connections[0]?.readyState;
+        console.log("New db connection created successfully");
 
     }catch(error){
-        console.log("Error while connecting to the database",error);
-        process.exit(1);
-
-
+        console.log("Error while connecting to the database", error);
+        throw new Error(`Database connection failed: ${error}`);
     }
 
 }
