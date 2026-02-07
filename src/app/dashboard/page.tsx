@@ -40,6 +40,9 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -50,28 +53,49 @@ export default function DashboardPage() {
     },
   })
 
-  useEffect(() => {
-    // Fetch user products
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("/api/getUserProducts")
-        const data = response.data
-        console.log("products: ",data)
-        setProducts(data.products.docs)
-      } catch (error) {
-        console.error("Error fetching products:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load products. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  const fetchProducts = async (pageNum: number) => {
+    try {
+      const isInitial = pageNum === 1
+      if (isInitial) setIsLoading(true)
+      else setIsLoadingMore(true)
 
-    fetchProducts()
+      const response = await axios.get("/api/getUserProducts", {
+        params: { limit: 9, page: pageNum },
+      })
+      const data = response.data
+      console.log("products: ", data)
+
+      const newProducts = data.products.docs
+      setProducts((prev) => (isInitial ? newProducts : [...prev, ...newProducts]))
+      setHasMore(newProducts.length === 9)
+      setPage(pageNum)
+    } catch (error) {
+      console.error("Error fetching products:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load products. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+      setIsLoadingMore(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts(1)
   }, [toast])
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget
+    if (
+      element.scrollHeight - element.scrollTop <= element.clientHeight + 100 &&
+      hasMore &&
+      !isLoadingMore
+    ) {
+      fetchProducts(page + 1)
+    }
+  }
 
   const handleProductClick = (product: IProduct) => {
     if (product.status === "pending") {
@@ -89,42 +113,29 @@ export default function DashboardPage() {
     setIsCreating(true)
 
     try {
-      // Call API to create new product
-      // Close dialog and reset form
       setIsDialogOpen(false)
-      // const dummyProduct: any = {
-      //   _id: `dummy-${Date.now()}`,
-      //   product_name: data.product_name,
-      //   product_description: data.product_description,
-      //   status: "pending",
-      // }
-
-      // setProducts([dummyProduct, ...products])
 
       setTimeout(async () => {
         try {
           const response = await axios.post("/api/createNewProduct", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+            headers: {
+              "Content-Type": "application/json",
+            },
           })
 
           const newProduct = response.data.product
-
-          // Remove dummy product and add new product to the list
-            // setProducts((prevProducts) => prevProducts.slice(1))
           setProducts((prevProducts) => [newProduct, ...prevProducts])
 
           toast({
-        title: "Success",
-        description: "Product created successfully",
+            title: "Success",
+            description: "Product created successfully",
           })
         } catch (error) {
           console.error("Error creating product:", error)
           toast({
-        title: "Error",
-        description: `Failed to create product. Please try again. ${(error as any).message}`,
-        variant: "destructive",
+            title: "Error",
+            description: `Failed to create product. Please try again. ${(error as any).message}`,
+            variant: "destructive",
           })
         } finally {
           setIsCreating(false)
@@ -132,11 +143,6 @@ export default function DashboardPage() {
       }, 0)
 
       form.reset()
-
-      toast({
-        title: "Success",
-        description: "Product created successfully",
-      })
     } catch (error) {
       console.error("Error creating product:", error)
       toast({
@@ -144,7 +150,6 @@ export default function DashboardPage() {
         description: `Failed to create product. Please try again. ${(error as any).message}`,
         variant: "destructive",
       })
-    } finally {
       setIsCreating(false)
     }
   }
@@ -166,49 +171,49 @@ export default function DashboardPage() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-              control={form.control}
-              name="product_name"
-              render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                Product Name <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                <Input placeholder="Enter product name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-              )}
-              />
-              <FormField
-              control={form.control}
-              name="product_category"
-              render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                Product Category <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                <Input placeholder="Enter product category" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-              )}
-              />
-              <FormField
-              control={form.control}
-              name="product_description"
-              render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Description</FormLabel>
-                <FormControl>
-                <Textarea placeholder="Enter product description" className="min-h-[100px]" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-              )}
-              />
+                <FormField
+                  control={form.control}
+                  name="product_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Product Name <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter product name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="product_category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Product Category <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter product category" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="product_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter product description" className="min-h-[100px]" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <DialogFooter>
                   <Button type="submit" disabled={isCreating}>
@@ -228,75 +233,83 @@ export default function DashboardPage() {
         </Dialog>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, index) => (
-            <Card key={index} className="animate-pulse">
-              <CardHeader className="pb-2">
-                <div className="h-6 bg-muted rounded w-3/4"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-4 bg-muted rounded w-full mb-2"></div>
-                <div className="h-4 bg-muted rounded w-5/6"></div>
-              </CardContent>
-              <CardFooter>
-                <div className="h-4 bg-muted rounded w-1/4"></div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : products.length === 0 ? (
-        <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-2">No products found</h2>
-          <p className="text-muted-foreground mb-6">Create your first product to get started</p>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" /> Create New Product
-              </Button>
-            </DialogTrigger>
-          </Dialog>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <Card
-              key={product._id}
-              className={`cursor-pointer transition-all hover:shadow-md ${
-              product.status === "pending" ? "border-amber-500 border-2" : ""
-              }`}
-              onClick={() => handleProductClick(product)}
-            >
-              <CardHeader className="pb-2">
-              <CardTitle className="flex flex-col">
-                <span className="flex items-center">
-                {product.product_name}
-                {product.status === "pending" ? (
-                  <span className="ml-2 px-2 py-1 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 rounded-full">
-                  Processing
-                  </span>
-                ) : (
-                  <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
-                  Ready
-                  </span>
-                )}
-                </span>
-                <span className="text-sm text-muted-foreground">{product.product_category}</span>
-              </CardTitle>
-              </CardHeader>
-              <CardContent>
-              <p className="text-muted-foreground line-clamp-2">{product.product_description}</p>
-              </CardContent>
-              <CardFooter>
-              <p className="text-sm text-muted-foreground">
-                Status: {product.status === "pending" ? "Processing" : "Ready"}
-              </p>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      )}
+      <div onScroll={handleScroll} className="overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-hide">
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, index) => (
+              <Card key={index} className="animate-pulse">
+                <CardHeader className="pb-2">
+                  <div className="h-6 bg-muted rounded w-3/4"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-4 bg-muted rounded w-full mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-5/6"></div>
+                </CardContent>
+                <CardFooter>
+                  <div className="h-4 bg-muted rounded w-1/4"></div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">No products found</h2>
+            <p className="text-muted-foreground mb-6">Create your first product to get started</p>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" /> Create New Product
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <Card
+                  key={product._id}
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    product.status === "pending" ? "border-amber-500 border-2" : ""
+                  }`}
+                  onClick={() => handleProductClick(product)}
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex flex-col">
+                      <span className="flex items-center">
+                        {product.product_name}
+                        {product.status === "pending" ? (
+                          <span className="ml-2 px-2 py-1 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 rounded-full">
+                            Processing
+                          </span>
+                        ) : (
+                          <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
+                            Ready
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-sm text-muted-foreground">{product.product_category}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground line-clamp-2">{product.product_description}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <p className="text-sm text-muted-foreground">
+                      Status: {product.status === "pending" ? "Processing" : "Ready"}
+                    </p>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+            {isLoadingMore && (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
-

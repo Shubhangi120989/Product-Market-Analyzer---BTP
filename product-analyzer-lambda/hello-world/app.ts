@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+// import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { connectToDatabase } from './lib/dbConnect';
 import { Product } from './models/product.model';
