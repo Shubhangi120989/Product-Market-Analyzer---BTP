@@ -100,7 +100,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const generateContent = async (prompt: string): Promise<string> => {
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-lite",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: {
       systemInstruction: "You are a market expert, you are supposed to provide insights of product and market through analyzing reddit posts. Highligh the subheadings and points wherever required",

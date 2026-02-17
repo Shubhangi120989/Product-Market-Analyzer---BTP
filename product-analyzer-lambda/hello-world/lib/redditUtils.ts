@@ -1,5 +1,6 @@
 import axios from 'axios';
 import crypto from 'crypto';
+// These imports now point to your updated Gemini-based helper files
 import { getEmbedding } from './getEmbedding';
 import { generateContent } from './generateContent';
 
@@ -29,7 +30,7 @@ export interface RedditPostPayload {
 
 export interface RedditPost {
   id: string;
-  vector: number[]; // Assuming getEmbedding returns a numeric vector
+  vector: number[]; // Now returns a 768-dim vector from Gemini text-embedding-004
   payload: RedditPostPayload;
 }
 
@@ -84,6 +85,7 @@ function splitProductName(name: string): string[] {
 }
 
 // 4. Call LLM to get slang + variants (Approach 2)
+// This will now use Gemini 1.5 Flash via your updated generateContent.ts
 async function generateLLMKeywords(productName: string, productCategory: string, description: string): Promise<string[]> {
   const prompt = `
 You are an expert in e-commerce and online forums.
@@ -273,7 +275,7 @@ export const fetchRedditPosts = async (product_name: string, product_category:st
         // Enhanced preprocessing before embedding
         const cleanedText = enhancePreprocess(rawText);
 
-        // Generate embedding
+        // Generate embedding (This now uses Gemini text-embedding-004)
         let postEmbedding: number[];
         try {
           postEmbedding = await getEmbedding(cleanedText);

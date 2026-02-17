@@ -22,7 +22,7 @@ interface ProductRequest {
  * Lambda handler for processing product data
  * Receives product information and processes Reddit posts for market analysis
  */
-export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: any): Promise<any> => {
     try {
         const { product_name, product_description, product_category }: ProductRequest = event;
         
@@ -77,6 +77,7 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
         // Fetch Reddit posts
         let postData;
         try {
+            // Note: fetchRedditPosts now uses Gemini internally via redditUtils -> getEmbedding
             postData = await fetchRedditPosts(product_name, product_category, product_description!, 20);
             console.log(`Fetched ${postData.length} posts from Reddit`);
         } catch (error) {
@@ -155,11 +156,11 @@ async function ensureCollectionExists(): Promise<void> {
         if (!collectionExists) {
             await client.createCollection(COLLECTION_NAME, {
                 vectors: {
-                    size: 1536, // OpenAI embedding size
+                    size: 1536, // UPDATED: Gemini text-embedding-004 size (was 1536 for Titan)
                     distance: 'Cosine'
                 }
             });
-            console.log(`Created collection: ${COLLECTION_NAME}`);
+            console.log(`Created collection: ${COLLECTION_NAME} with vector size 768`);
         }
     } catch (error) {
         console.error("Error ensuring collection exists:", error);

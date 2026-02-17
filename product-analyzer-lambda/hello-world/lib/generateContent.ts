@@ -1,40 +1,48 @@
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-} from "@aws-sdk/client-bedrock-runtime";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const client = new BedrockRuntimeClient({
-  region: "us-east-1"
-});
+const keys = (process.env.GEMINI_API_KEYS_LAMBDA || "").split(",");
+let currentKeyIndex = 0;
 
-const modelId = "amazon.nova-lite-v1:0";
+function getNextClient() {
+  if (keys.length === 0) {
+    throw new Error("No Gemini API keys configured");
+  }
+
+  const key = keys[currentKeyIndex];
+  currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+
+  return new GoogleGenerativeAI(key);
+}
 
 export const generateContent = async (prompt: string): Promise<string> => {
-  const input = {
-    modelId,
-    contentType: "application/json",
-    accept: "application/json",
-    body: JSON.stringify({
-      messages: [
+  try {
+    const genAI = getNextClient();
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite",
+      systemInstruction:
+        "You are a market expert, you are supposed to provide insights of product and market through analyzing reddit posts.",
+    });
+
+    const result = await model.generateContent({
+      contents: [
         {
           role: "user",
-          content: [{ text: "You are a market expert, you are supposed to provide insights of product and market through analyzing reddit posts." }],
-        },
-        {
-          role: "user",
-          content: [{ text: prompt }],
+          parts: [{ text: prompt }],
         },
       ],
-      inferenceConfig: {
-        max_new_tokens: 2048,
-        temperature: 0.7
-      }
-    })
-  };
+      generationConfig: {
+        maxOutputTokens: 1024,
+        temperature: 0.7,
+      },
+    });
 
-  const command = new InvokeModelCommand(input);
-  const response = await client.send(command);
-  const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-
-  return responseBody.output.message.content[0].text;
+    const response = await result.response;
+    return response.text();
+  } catch (error: any) {
+    console.error("Error generating content with Gemini:", error);
+    // Throwing error ensures the caller knows the generation failed
+    throw new Error(`Gemini generation failed: ${error.message}`);
+  }
 };
+

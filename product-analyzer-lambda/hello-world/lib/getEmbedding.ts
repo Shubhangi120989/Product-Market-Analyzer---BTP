@@ -1,57 +1,78 @@
-import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { GoogleGenAI } from "@google/genai";
 
-const client = new BedrockRuntimeClient({ 
-  region: "us-east-1",
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY!,
 });
 
-export const getEmbedding = async (text: string, retries = 3): Promise<number[]> => {
-  // Validate input
+const VECTOR_DIM = 1536;
+
+export const getEmbedding = async (
+  text: string,
+  retries = 3
+): Promise<number[]> => {
+
   if (!text || text.trim().length === 0) {
-    console.warn('Empty text provided to getEmbedding, returning zero vector');
-    return new Array(1536).fill(0); // Titan returns 1536 dimensions
+    console.warn("Empty text provided, returning zero vector");
+    return new Array(VECTOR_DIM).fill(0);
   }
 
   const maxChars = 30000;
   if (text.length > maxChars) {
-    console.warn(`Text truncated from ${text.length} to ${maxChars} chars`);
     text = text.substring(0, maxChars);
   }
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const command = new InvokeModelCommand({
-        modelId: "amazon.titan-embed-text-v1",
-        body: JSON.stringify({
-          inputText: text
-        }),
-        contentType: "application/json"
+
+      const response = await ai.models.embedContent({
+        model: "gemini-embedding-001",
+        contents: text,
+        config: {
+          outputDimensionality: VECTOR_DIM,
+        },
       });
 
-      const response = await client.send(command);
-      const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-      
-      console.log(`Embedding generated with ${responseBody.embedding.length} dimensions`);
-      return responseBody.embedding;
-    } catch (error: any) {
-      const status = error?.$metadata?.httpStatusCode || 'unknown';
-      console.error(`Embedding attempt ${attempt}/${retries} failed:`, status, error?.message);
+      const rawEmb = response.embeddings?.[0];
 
-      // Don't retry on 400-level errors
-      if (status >= 400 && status < 500) {
-        console.error('Client error; not retrying');
-        throw error;
+      let embedding: number[] | undefined;
+
+      if (Array.isArray(rawEmb)) {
+        embedding = rawEmb;
+      } else if (Array.isArray((rawEmb as any)?.embedding)) {
+        embedding = (rawEmb as any).embedding;
+      } else if (Array.isArray((rawEmb as any)?.values)) {
+        embedding = (rawEmb as any).values;
       }
 
-      // Retry on 500 errors with exponential backoff
+      if (!embedding || embedding.length !== VECTOR_DIM) {
+        throw new Error("Invalid embedding returned from Gemini");
+      }
+
+      console.log(`Embedding generated (${embedding.length} dims)`);
+
+      return embedding;
+
+    } catch (error: any) {
+      const status = error?.status || error?.$metadata?.httpStatusCode;
+
+      console.error(
+        `Attempt ${attempt}/${retries} failed`,
+        status,
+        error?.message
+      );
+
+      if (status && status >= 400 && status < 500) {
+        throw error; // don't retry client errors
+      }
+
       if (attempt < retries) {
-        const delay = Math.pow(2, attempt - 1) * 1000;
-        console.log(`Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        const delay = 500 * attempt; // safer for Lambda
+        await new Promise((r) => setTimeout(r, delay));
       } else {
-        throw error;
+        throw new Error("Embedding failed after retries");
       }
     }
   }
 
-  throw new Error('Failed to generate embedding after all retries');
+  throw new Error("Embedding failed unexpectedly");
 };

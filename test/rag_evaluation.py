@@ -2,14 +2,16 @@ import csv
 import json
 import logging
 import sys
+import os
 from datetime import datetime
 from pprint import pprint
 from typing import Any, Dict, List
 
 import requests
-from langchain_aws import BedrockEmbeddings, ChatBedrock
+from dotenv import load_dotenv  # Added to load .env file
+from langchain_google_genai import ChatGoogleGenerativeAI
 from ragas import SingleTurnSample
-from ragas.embeddings.base import LangchainEmbeddingsWrapper
+#from ragas.embeddings.base import LangchainEmbeddingsWrapper
 from ragas.llms import LangchainLLMWrapper
 from ragas.metrics import (
     ContextPrecision,
@@ -17,6 +19,7 @@ from ragas.metrics import (
     Faithfulness,
     NoiseSensitivity,
 )
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -59,37 +62,23 @@ class RAGEvaluator:
         logger.info("Initializing RAG Evaluator...")
 
         try:
-            # Initialize Bedrock configuration
-            config = {
-                "credentials_profile_name": "default",  # Use default AWS profile
-                "region_name": "us-east-1",  # Nova Lite region
-                "model_id": "us.amazon.nova-lite-v1:0",  # Nova Lite model ID
-                "model_kwargs": {
-                    "temperature": 0.1,
-                    "max_tokens": 4096,
-                },  # Low temperature for consistent evaluation and high max_tokens for complete JSON
-            }
 
-            # Initialize ChatBedrock
-            logger.info("Initializing ChatBedrock with Nova Lite (high max_tokens)...")
-            bedrock_llm = ChatBedrock(
-                model=config["model_id"],
-                region=config["region_name"],
-                credentials_profile_name=config["credentials_profile_name"],
-                model_kwargs=config["model_kwargs"],
-            )
+            if "GOOGLE_API_KEY" not in os.environ:
+                logger.error("GOOGLE_API_KEY not found in environment variables.")
+                raise ValueError("Please set GOOGLE_API_KEY in your .env file")
 
-            # Initialize Bedrock embeddings
-            bedrock_embeddings = BedrockEmbeddings(
-                credentials_profile_name=config["credentials_profile_name"],
-                region_name=config["region_name"],
-                model_id="amazon.titan-embed-text-v1",  # Default embedding model
+            # Initialize Gemini 1.5 Flash
+            # We use Flash because it is cost-effective and fast for evaluation tasks
+            logger.info("Initializing Gemini 1.5 Flash...")
+            gemini_llm = ChatGoogleGenerativeAI(
+                model="gemini-2.5-flash",
+                temperature=0.1,  # Low temperature for consistent grading
+                max_output_tokens=4096,
             )
 
             # Wrap with RAGAS wrappers for proper integration
             logger.info("Wrapping models with RAGAS wrappers...")
-            self.llm = LangchainLLMWrapper(bedrock_llm)
-            self.embeddings = LangchainEmbeddingsWrapper(bedrock_embeddings)
+            self.llm = LangchainLLMWrapper(gemini_llm)
 
             # Initialize RAGAS metrics with wrapped LLM
             logger.info("Initializing RAGAS metrics...")
@@ -101,8 +90,6 @@ class RAGEvaluator:
             logger.info("RAG Evaluator initialized successfully with Bedrock")
         except Exception as e:
             logger.error(f"Failed to initialize RAG Evaluator: {str(e)}")
-            logger.error("Make sure your AWS credentials are configured properly")
-            logger.error("Run 'aws configure' to set up your credentials")
             raise
 
     def ask_question(self, product_id: str, question: str) -> Dict[str, Any]:
