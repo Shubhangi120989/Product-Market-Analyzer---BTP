@@ -57,14 +57,17 @@ Parameters:
     Type: String
     Description: Reddit API Client ID
     NoEcho: true
+    Default: ""
   RedditClientSecret:
     Type: String
     Description: Reddit API Client Secret
     NoEcho: true
+    Default: ""
   GeminiApiKey:
     Type: String
     Description: Google Gemini API Key
     NoEcho: true
+    Default: ""
   QdrantUrl:
     Type: String
     Description: Qdrant Vector Database URL
@@ -77,15 +80,20 @@ Parameters:
   QdrantCollectionName:
     Type: String
     Description: Qdrant Collection Name
-    Default: "product_posts"
+    Default: "reddit-posts"
   MongoDbUri:
     Type: String
     Description: MongoDB Connection URI
     NoEcho: true
+    Default: ""
   DbName:
     Type: String
     Description: Database Name
     Default: "product_analyzer"
+  GeminiApiKeyLambda:
+    Type: String
+    Description: Gemini API Key for Lambda
+    Default: ""
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

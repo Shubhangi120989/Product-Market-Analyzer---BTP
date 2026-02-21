@@ -10,7 +10,7 @@ const client = new QdrantClient({
     apiKey: process.env.QDRANT_API_KEY,
 });
 
-const COLLECTION_NAME = process.env.QDRANT_COLLECTION_NAME || 'product_posts';
+const COLLECTION_NAME = process.env.QDRANT_COLLECTION_NAME || 'reddit-posts';
 
 interface ProductRequest {
     product_name: string;
@@ -24,7 +24,10 @@ interface ProductRequest {
  */
 export const lambdaHandler = async (event: any): Promise<any> => {
     try {
-        const { product_name, product_description, product_category }: ProductRequest = event;
+        const input = event.body
+            ? (typeof event.body === 'string' ? JSON.parse(event.body) : event.body)
+            : event;
+        const { product_name, product_description, product_category }: ProductRequest = input;
         
         console.log("product_name:", product_name);
         console.log("product_description:", product_description);
@@ -160,7 +163,7 @@ async function ensureCollectionExists(): Promise<void> {
                     distance: 'Cosine'
                 }
             });
-            console.log(`Created collection: ${COLLECTION_NAME} with vector size 768`);
+            console.log(`Created collection: ${COLLECTION_NAME} with vector size 1536`);
         }
     } catch (error) {
         console.error("Error ensuring collection exists:", error);
