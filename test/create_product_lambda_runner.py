@@ -1,13 +1,12 @@
+import ast
 import csv
 import json
-import boto3
+import requests
 import time
 import os
 from typing import Dict, Any, Optional, Tuple
 
-lambda_client = boto3.client('lambda')
-
-lambda_arn = "arn:aws:lambda:ap-south-1:703671918077:function:productanalyzer"
+API_URL = "https://qu64hkxom2.execute-api.ap-south-1.amazonaws.com/Prod/analyze-product/"
 
 file_name = "Rag Pipeline Analysis Data - Sheet1.csv"
 progress_file = "product_processing_progress.json"
@@ -33,7 +32,7 @@ def load_progress():
             # Convert string keys back to tuples
             unique_product_ids = {}
             for key_str, value in progress_data['unique_product_ids'].items():
-                key = eval(key_str)  # Convert string back to tuple
+                key = ast.literal_eval(key_str)
                 unique_product_ids[key] = value
             
             print(f"Resuming from previous progress: {progress_data['processed_count']} products already processed")
@@ -81,29 +80,28 @@ def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], 
             }
             print(f"Processing unique product (attempt {attempt + 1}/{max_retries}): {lambda_payload}")
 
-            response = lambda_client.invoke(
-                FunctionName=lambda_arn,
-                InvocationType='RequestResponse',
-                Payload=json.dumps(lambda_payload)
+            response = requests.post(
+                API_URL,
+                json=lambda_payload,
+                timeout=1800
             )
 
-            response_payload = json.loads(response['Payload'].read().decode('utf-8'))
+            response_payload = response.json()
             print(f"Response for {key}: {response_payload}")
             
-            # Check if response indicates an error
-            if response_payload.get('statusCode') == 500:
-                error_message = json.loads(response_payload.get('body', '{}')).get('error', 'Unknown error')
-                print(f"Lambda returned error (attempt {attempt + 1}): {error_message}")
+            if response.status_code == 500:
+                error_message = response_payload.get('error', 'Unknown error')
+                print(f"API returned error (attempt {attempt + 1}): {error_message}")
                 if attempt < max_retries - 1:
                     print(f"Retrying in {delay} seconds...")
                     time.sleep(delay)
                     continue
                 else:
                     print(f"Max retries reached for {key}. Pausing for 1 minute...")
-                    time.sleep(60)  # 1 minute pause on final failure
+                    time.sleep(60)
                     return key, None
             
-            product_id = json.loads(response_payload.get('body', '{}')).get('product', {}).get('_id')
+            product_id = response_payload.get('product', {}).get('_id')
             
             if product_id:
                 print(f"Unique product {key}: Product ID: {product_id}")
@@ -116,7 +114,7 @@ def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], 
                     continue
                 else:
                     print(f"Max retries reached for {key}. Pausing for 1 minute...")
-                    time.sleep(60)  # 1 minute pause on final failure
+                    time.sleep(60)
                     return key, None
                     
         except Exception as e:
@@ -126,7 +124,7 @@ def process_unique_product_with_retry(key: Tuple, product_data: Dict[str, Any], 
                 time.sleep(delay)
             else:
                 print(f"Max retries reached for {key}. Pausing for 1 minute...")
-                time.sleep(60)  # 1 minute pause on final failure
+                time.sleep(60)
                 return key, None
     
     return key, None
