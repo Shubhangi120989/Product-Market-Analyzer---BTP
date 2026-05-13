@@ -173,7 +173,6 @@ async function retrieveTopPostsForEmbedding(embedding: Vector, productFilter: st
       limit,
       filter: { must: [{ key: "name", match: { value: productFilter } }] },
       with_payload: true,
-      with_vector: true
     });
     console.log("an object gotten from qdrant", res[0]);
     // Normalise to QdrantHit[]
@@ -184,7 +183,8 @@ async function retrieveTopPostsForEmbedding(embedding: Vector, productFilter: st
       vector: r.vector
     }));
   } catch (err) {
-    console.error("Qdrant search error:", (err as any)?.response?.data || err);
+    const data = (err as any)?.data ?? (err as any)?.response?.data;
+    console.error("Qdrant search error:", JSON.stringify(data ?? err, null, 2));
     return [];
   }
 }
